@@ -97,6 +97,15 @@ Details: structured outputs via `output_config.format` with a JSON schema, valid
 - **Tests.** 47 Vitest tests cover the robots.txt parser (wildcards, longest match, Allow beating Disallow on a tie), the address blocking, and complete runs on fixture pages: a strong page, a weak one, a JavaScript shell, noindex, blocked crawlers and a cut-off page.
 - **The sample report is real output.** `/report?demo=1` shows a fictional dental practice. Its data comes from running the actual engine on a fixture page (`scripts/generate-sample.ts`), so it can't drift from what a live audit returns.
 
+## Project docs
+
+- [Product requirements](docs/prd.md): problem, users, requirements, success metrics, risks
+- [Architecture](docs/architecture.md): request flow, audit pipeline, scoring, security, how to add a check
+- [Design](docs/design.md): principles, colour tokens, components, accessibility
+- [Phases](docs/phases.md): roadmap from MVP to citation tracking, with exit criteria
+- [Rules](docs/rules.md): product, scoring, engineering and publishing rules for anyone working on it
+- [Memory](docs/memory.md): decisions log, real-site results, gotchas
+
 ## Run it locally
 
 You need Node.js 20 or later.
