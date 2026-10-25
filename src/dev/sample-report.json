@@ -1,0 +1,779 @@
+{
+  "url": "https://brightsidedental.example/",
+  "fetchedAt": "2026-10-24T09:30:00.000Z",
+  "overallScore": 76,
+  "grade": "B",
+  "verdict": "Solid foundation for AI answer engines, with a few gaps to close. Start with: phrase some headings as customer questions.",
+  "categories": [
+    {
+      "id": "crawlability",
+      "label": "Crawlability & access",
+      "weight": 0.3,
+      "score": 91,
+      "checks": [
+        {
+          "id": "robots-answer-bots",
+          "category": "crawlability",
+          "title": "AI answer bots can crawl the page",
+          "status": "pass",
+          "points": 12,
+          "maxPoints": 12,
+          "summary": "robots.txt lets all 6 AI answer bots and both search crawlers (Googlebot, Bingbot) fetch this page.",
+          "evidence": [
+            "OAI-SearchBot (OpenAI): allowed - no matching rule",
+            "ChatGPT-User (OpenAI): allowed - no matching rule",
+            "PerplexityBot (Perplexity): allowed - no matching rule",
+            "Perplexity-User (Perplexity): allowed - no matching rule",
+            "Claude-SearchBot (Anthropic): allowed - no matching rule",
+            "Claude-User (Anthropic): allowed - no matching rule",
+            "Googlebot (Google): allowed - no matching rule",
+            "Bingbot (Microsoft): allowed - no matching rule"
+          ]
+        },
+        {
+          "id": "robots-training-bots",
+          "category": "crawlability",
+          "title": "AI training crawlers (for information)",
+          "status": "info",
+          "points": 0,
+          "maxPoints": 0,
+          "summary": "Blocked training crawlers: GPTBot, Google-Extended and CCBot. Blocking these is a business choice and does not stop ChatGPT, Perplexity or Claude from citing the page.",
+          "evidence": [
+            "GPTBot (OpenAI): blocked - Disallow: /",
+            "ClaudeBot (Anthropic): allowed - no matching rule",
+            "Google-Extended (Google): blocked - Disallow: /",
+            "Applebot-Extended (Apple): allowed - no matching rule",
+            "CCBot (Common Crawl): blocked - Disallow: /",
+            "meta-externalagent (Meta): allowed - no matching rule",
+            "Google-Extended is blocked. This does not affect Google AI Overviews or ordinary Google Search; those are governed by Googlebot."
+          ]
+        },
+        {
+          "id": "indexable",
+          "category": "crawlability",
+          "title": "Page is allowed to be indexed",
+          "status": "pass",
+          "points": 8,
+          "maxPoints": 8,
+          "summary": "No noindex or nosnippet instructions found in the page or response headers."
+        },
+        {
+          "id": "server-rendered",
+          "category": "crawlability",
+          "title": "Content is visible without JavaScript",
+          "status": "pass",
+          "points": 6,
+          "maxPoints": 6,
+          "summary": "437 words of text are present in the raw HTML, so crawlers that skip JavaScript can still read the page.",
+          "evidence": [
+            "437 words of readable text in the raw HTML"
+          ]
+        },
+        {
+          "id": "llms-txt",
+          "category": "crawlability",
+          "title": "llms.txt file",
+          "status": "warn",
+          "points": 0,
+          "maxPoints": 3,
+          "summary": "No llms.txt file was found at the site root.",
+          "evidence": [
+            "https://www.brightsidedental.example/llms.txt returned 404"
+          ],
+          "fix": {
+            "title": "Add a short llms.txt file",
+            "why": "llms.txt is an emerging proposal for giving AI tools a plain-text map of your site. No major AI engine has confirmed that it reads it, so treat it as cheap insurance rather than a ranking factor.",
+            "how": "Create a plain text file and publish it at https://www.brightsidedental.example/llms.txt. List your most important pages with a one-line description each. Make sure the URL returns the text file itself, not your site's 404 page.",
+            "impact": "low",
+            "effort": "quick",
+            "snippet": "# Brightside Dental\n\n> Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you.\n\n## Key pages\n\n- [Home](https://www.brightsidedental.example/): Brightside Dental | Family Dentist in Austin, TX\n- [About](https://www.brightsidedental.example/about): Who we are and what we do\n- [Contact](https://www.brightsidedental.example/contact): How to reach us"
+          }
+        },
+        {
+          "id": "sitemap",
+          "category": "crawlability",
+          "title": "XML sitemap",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "A sitemap was found (declared in robots.txt).",
+          "evidence": [
+            "https://www.brightsidedental.example/sitemap.xml"
+          ]
+        },
+        {
+          "id": "https-status",
+          "category": "crawlability",
+          "title": "Secure (HTTPS) and loads normally",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "The page is served over HTTPS and returns a normal 200 response.",
+          "evidence": [
+            "Final URL: https://www.brightsidedental.example/",
+            "Status: 200",
+            "Redirects: 1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "structured-data",
+      "label": "Structured data",
+      "weight": 0.2,
+      "score": 77,
+      "checks": [
+        {
+          "id": "jsonld-valid",
+          "category": "structured-data",
+          "title": "Structured data (JSON-LD) is present and valid",
+          "status": "pass",
+          "points": 6,
+          "maxPoints": 6,
+          "summary": "1 JSON-LD block found and every one parses correctly.",
+          "evidence": [
+            "1 JSON-LD block found, 0 could not be parsed",
+            "Types: WebSite, Dentist"
+          ]
+        },
+        {
+          "id": "schema-organization",
+          "category": "structured-data",
+          "title": "Organization or business markup",
+          "status": "warn",
+          "points": 4,
+          "maxPoints": 6,
+          "summary": "Dentist markup exists but is missing logo.",
+          "evidence": [
+            "Type: Dentist",
+            "name: Brightside Dental",
+            "url: https://www.brightsidedental.example/",
+            "logo: missing"
+          ],
+          "fix": {
+            "title": "Add logo to your Organization markup",
+            "why": "Name, URL and logo are the basics engines use to recognise the brand and show it consistently.",
+            "how": "Add the missing property to the existing Dentist block. Use the address of a square or wide logo image, at least 112 pixels across.",
+            "impact": "medium",
+            "effort": "quick",
+            "snippet": "\"logo\": \"https://www.brightsidedental.example/logo.png\""
+          }
+        },
+        {
+          "id": "schema-sameas",
+          "category": "structured-data",
+          "title": "sameAs profile links",
+          "status": "warn",
+          "points": 0,
+          "maxPoints": 3,
+          "summary": "No sameAs profile links were found in the structured data.",
+          "evidence": [
+            "Entity found, but without sameAs"
+          ],
+          "fix": {
+            "title": "Add sameAs links to your official profiles",
+            "why": "sameAs tells engines that your site, your LinkedIn page and your Wikipedia or Crunchbase entry are the same business. That helps them trust and consistently name you when they cite you.",
+            "how": "Add this property inside your Organization markup, replacing the placeholders with your real profile addresses. Include any that exist: LinkedIn, Facebook, X, YouTube, Instagram, Crunchbase, Wikipedia or Wikidata.",
+            "impact": "medium",
+            "effort": "quick",
+            "snippet": "\"sameAs\": [\n\"https://www.linkedin.com/company/REPLACE_WITH_YOUR_PAGE\",\n\"https://www.facebook.com/REPLACE_WITH_YOUR_PAGE\"\n]"
+          }
+        },
+        {
+          "id": "schema-page-type",
+          "category": "structured-data",
+          "title": "Page-type structured data",
+          "status": "pass",
+          "points": 5,
+          "maxPoints": 5,
+          "summary": "The page declares a content type (Organization (home page)).",
+          "evidence": [
+            "Schema types on page: WebSite, Dentist"
+          ]
+        },
+        {
+          "id": "schema-website-breadcrumb",
+          "category": "structured-data",
+          "title": "WebSite and breadcrumb markup",
+          "status": "pass",
+          "points": 2,
+          "maxPoints": 2,
+          "summary": "WebSite markup is present (breadcrumbs are not expected on a home page).",
+          "evidence": [
+            "WebSite: yes",
+            "BreadcrumbList: not needed on a home page"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "label": "Content structure",
+      "weight": 0.25,
+      "score": 63,
+      "checks": [
+        {
+          "id": "h1-single",
+          "category": "content",
+          "title": "Exactly one H1 heading",
+          "status": "pass",
+          "points": 5,
+          "maxPoints": 5,
+          "summary": "The page has a single H1: \"Gentle family dentistry in South Austin\".",
+          "evidence": [
+            "H1: Gentle family dentistry in South Austin"
+          ]
+        },
+        {
+          "id": "heading-hierarchy",
+          "category": "content",
+          "title": "Headings are well structured",
+          "status": "warn",
+          "points": 2,
+          "maxPoints": 4,
+          "summary": "Heading structure needs work: 2 heading levels skipped.",
+          "evidence": [
+            "Outline: H1 > H2 > H4 > H2 > H2 > H4 > H2",
+            "H2 \"Our services\" is followed by H4 \"Cleanings\"",
+            "H2 \"Meet the team\" is followed by H4 \"Dr. Rivera\""
+          ],
+          "fix": {
+            "title": "Tidy the heading outline",
+            "why": "A clean outline (H1, then H2 sections, then H3 sub-points) shows engines where each topic starts and ends so they can quote the right part.",
+            "how": "Change skipped levels so each heading is only one level below the one before it. Choose heading levels for structure, not for how big the text looks; use styling for size.",
+            "impact": "medium",
+            "effort": "quick"
+          }
+        },
+        {
+          "id": "question-headings",
+          "category": "content",
+          "title": "Headings phrased as questions",
+          "status": "fail",
+          "points": 0,
+          "maxPoints": 4,
+          "summary": "No section headings are phrased as questions.",
+          "fix": {
+            "title": "Phrase some headings as customer questions",
+            "why": "People ask AI engines full questions. A heading that matches the question, followed by a direct answer, is the easiest kind of passage to lift into an answer.",
+            "how": "Rewrite some H2 or H3 headings as the question a customer would type or speak. For example: \"Our services\" becomes \"What services does Brightside Dental offer?\"; \"Pricing\" becomes \"How much does Brightside Dental cost?\"; \"Meet the team\" becomes \"Who is Brightside Dental?\".",
+            "impact": "medium",
+            "effort": "quick"
+          }
+        },
+        {
+          "id": "faq-block",
+          "category": "content",
+          "title": "FAQ section",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "The page has an FAQ section (6 expandable details/summary items, a heading that mentions FAQ).",
+          "evidence": [
+            "6 expandable details/summary items",
+            "a heading that mentions FAQ"
+          ]
+        },
+        {
+          "id": "answer-first",
+          "category": "content",
+          "title": "Sections open with a direct answer",
+          "status": "warn",
+          "points": 3,
+          "maxPoints": 5,
+          "summary": "Only 2 of 4 sections open with a concise answer; the first paragraphs are too short or too long to quote.",
+          "evidence": [
+            "2 of 4 sections open with a concise answer",
+            "\"Pricing\": 83 words in the first paragraph",
+            "\"Frequently asked questions\": 17 words in the first paragraph"
+          ],
+          "fix": {
+            "title": "Open each section with a short, direct answer",
+            "why": "Answer engines favour a passage that answers the heading on its own. A 25 to 60 word answer straight under the heading is the easiest thing for them to extract and cite.",
+            "how": "Under each H2 or H3, put the answer in the first one or two sentences (aim for under 60 words), then follow with detail. Start with the heading \"Pricing\".",
+            "impact": "high",
+            "effort": "moderate",
+            "snippet": "<h2>Pricing</h2>\n<p>[Answer the heading directly in one or two sentences, under 60 words.] [Then continue with detail, examples and links.]</p>"
+          }
+        },
+        {
+          "id": "substance",
+          "category": "content",
+          "title": "Enough useful content",
+          "status": "warn",
+          "points": 2,
+          "maxPoints": 4,
+          "summary": "The page has 437 words, which is workable but light for a page you want cited.",
+          "evidence": [
+            "437 words of main text (navigation, header and footer excluded)"
+          ],
+          "fix": {
+            "title": "Add more useful, specific content",
+            "why": "Pages that explain a topic thoroughly give engines more to quote and more reason to trust the source. Thin pages are usually skipped in favour of fuller ones.",
+            "how": "Add the information customers ask about before they buy: how it works, pricing or price ranges, who it is for, proof such as case studies or reviews, and answers to common questions. Aim for 700 or more words of genuinely useful text; length for its own sake does not help.",
+            "impact": "low",
+            "effort": "involved"
+          }
+        },
+        {
+          "id": "lists-tables",
+          "category": "content",
+          "title": "Lists or tables",
+          "status": "pass",
+          "points": 2,
+          "maxPoints": 2,
+          "summary": "The page includes a list or table, which engines can lift out cleanly."
+        }
+      ]
+    },
+    {
+      "id": "entity",
+      "label": "Entity & local signals",
+      "weight": 0.1,
+      "score": 100,
+      "checks": [
+        {
+          "id": "business-name",
+          "category": "entity",
+          "title": "Business name is stated consistently",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "The business name \"Brightside Dental\" is consistent across schema, og:site_name, title.",
+          "evidence": [
+            "Organization schema name: Brightside Dental",
+            "og:site_name: Brightside Dental",
+            "Page title: Brightside Dental | Family Dentist in Austin, TX"
+          ]
+        },
+        {
+          "id": "contact-details",
+          "category": "entity",
+          "title": "Phone and address are published",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "A phone number and address are both published and consistent.",
+          "evidence": [
+            "Phone in structured data: +1-512-555-0142",
+            "Phone on page: (512) 555-0142",
+            "Address: in structured data"
+          ]
+        },
+        {
+          "id": "about-contact",
+          "category": "entity",
+          "title": "About and Contact pages are linked",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "The page links to both an About page and a Contact page.",
+          "evidence": [
+            "About: https://www.brightsidedental.example/about",
+            "Contact: https://www.brightsidedental.example/contact"
+          ]
+        },
+        {
+          "id": "authorship",
+          "category": "entity",
+          "title": "Author is named on articles",
+          "status": "info",
+          "points": 0,
+          "maxPoints": 0,
+          "summary": "This does not look like an article, so an author byline is not expected."
+        }
+      ]
+    },
+    {
+      "id": "meta",
+      "label": "Meta & page basics",
+      "weight": 0.15,
+      "score": 50,
+      "checks": [
+        {
+          "id": "title",
+          "category": "meta",
+          "title": "Page title",
+          "status": "pass",
+          "points": 3,
+          "maxPoints": 3,
+          "summary": "The title is 48 characters, a good length.",
+          "evidence": [
+            "Brightside Dental | Family Dentist in Austin, TX"
+          ]
+        },
+        {
+          "id": "meta-description",
+          "category": "meta",
+          "title": "Meta description",
+          "status": "warn",
+          "points": 2,
+          "maxPoints": 3,
+          "summary": "The meta description is 200 characters; text beyond about 160 is usually cut off.",
+          "evidence": [
+            "Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you."
+          ],
+          "fix": {
+            "title": "Shorten the meta description",
+            "why": "The description is the summary shown under your title. A complete, specific one reads better and is more likely to be reused.",
+            "how": "Rewrite it to 70 to 160 characters that say what the page offers and who it is for. A draft built from the page text is below.",
+            "impact": "low",
+            "effort": "quick",
+            "snippet": "<meta name=\"description\" content=\"Gentle family dentistry in South Austin Welcome to Brightside Dental, where your smile is our passion.\">"
+          }
+        },
+        {
+          "id": "canonical",
+          "category": "meta",
+          "title": "Canonical URL",
+          "status": "warn",
+          "points": 0,
+          "maxPoints": 3,
+          "summary": "The page does not declare a canonical (preferred) URL.",
+          "fix": {
+            "title": "Add a canonical link",
+            "why": "If the same page can be reached at several addresses (with or without www, with tracking parameters), a canonical link tells engines which one to treat as the original.",
+            "how": "Add a canonical link in the page head that points to the full address you want to appear in search.",
+            "impact": "medium",
+            "effort": "quick",
+            "snippet": "<link rel=\"canonical\" href=\"https://www.brightsidedental.example/\">"
+          }
+        },
+        {
+          "id": "open-graph",
+          "category": "meta",
+          "title": "Open Graph tags",
+          "status": "warn",
+          "points": 1,
+          "maxPoints": 3,
+          "summary": "Open Graph tags are missing: og:description, og:image.",
+          "evidence": [
+            "og:title: Brightside Dental",
+            "og:description: missing",
+            "og:image: missing"
+          ],
+          "fix": {
+            "title": "Add the missing Open Graph tags",
+            "why": "Open Graph tags give link previews, social networks and some AI tools a clean title, summary and image for the page instead of making them guess.",
+            "how": "Add the tags below to the page head. Replace the image address with a real image, ideally 1200 by 630 pixels. Most SEO plugins have fields for these.",
+            "impact": "medium",
+            "effort": "quick",
+            "snippet": "<meta property=\"og:description\" content=\"Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you.\">\n<meta property=\"og:image\" content=\"https://www.brightsidedental.example/og-image.jpg\">"
+          }
+        },
+        {
+          "id": "lang-viewport",
+          "category": "meta",
+          "title": "Language and mobile viewport",
+          "status": "pass",
+          "points": 1,
+          "maxPoints": 1,
+          "summary": "The page declares its language (en) and a mobile viewport.",
+          "evidence": [
+            "html lang: en",
+            "viewport: width=device-width, initial-scale=1"
+          ]
+        },
+        {
+          "id": "twitter-card",
+          "category": "meta",
+          "title": "Twitter/X card",
+          "status": "warn",
+          "points": 0,
+          "maxPoints": 1,
+          "summary": "No Twitter/X card tag was found.",
+          "fix": {
+            "title": "Add a Twitter/X card tag",
+            "why": "This only affects how links look when shared on X. It has little effect on AI answers, so treat it as a finishing touch.",
+            "how": "Add the tag below. X will reuse your Open Graph title, description and image for the rest.",
+            "impact": "low",
+            "effort": "quick",
+            "snippet": "<meta name=\"twitter:card\" content=\"summary_large_image\">"
+          }
+        }
+      ]
+    }
+  ],
+  "fixes": [
+    {
+      "title": "Phrase some headings as customer questions",
+      "why": "People ask AI engines full questions. A heading that matches the question, followed by a direct answer, is the easiest kind of passage to lift into an answer.",
+      "how": "Rewrite some H2 or H3 headings as the question a customer would type or speak. For example: \"Our services\" becomes \"What services does Brightside Dental offer?\"; \"Pricing\" becomes \"How much does Brightside Dental cost?\"; \"Meet the team\" becomes \"Who is Brightside Dental?\".",
+      "impact": "medium",
+      "effort": "quick",
+      "checkId": "question-headings",
+      "category": "content",
+      "pointsAvailable": 4,
+      "priority": 3
+    },
+    {
+      "title": "Add sameAs links to your official profiles",
+      "why": "sameAs tells engines that your site, your LinkedIn page and your Wikipedia or Crunchbase entry are the same business. That helps them trust and consistently name you when they cite you.",
+      "how": "Add this property inside your Organization markup, replacing the placeholders with your real profile addresses. Include any that exist: LinkedIn, Facebook, X, YouTube, Instagram, Crunchbase, Wikipedia or Wikidata.",
+      "impact": "medium",
+      "effort": "quick",
+      "snippet": "\"sameAs\": [\n\"https://www.linkedin.com/company/REPLACE_WITH_YOUR_PAGE\",\n\"https://www.facebook.com/REPLACE_WITH_YOUR_PAGE\"\n]",
+      "checkId": "schema-sameas",
+      "category": "structured-data",
+      "pointsAvailable": 3,
+      "priority": 1.8
+    },
+    {
+      "title": "Tidy the heading outline",
+      "why": "A clean outline (H1, then H2 sections, then H3 sub-points) shows engines where each topic starts and ends so they can quote the right part.",
+      "how": "Change skipped levels so each heading is only one level below the one before it. Choose heading levels for structure, not for how big the text looks; use styling for size.",
+      "impact": "medium",
+      "effort": "quick",
+      "checkId": "heading-hierarchy",
+      "category": "content",
+      "pointsAvailable": 2,
+      "priority": 1.5
+    },
+    {
+      "title": "Open each section with a short, direct answer",
+      "why": "Answer engines favour a passage that answers the heading on its own. A 25 to 60 word answer straight under the heading is the easiest thing for them to extract and cite.",
+      "how": "Under each H2 or H3, put the answer in the first one or two sentences (aim for under 60 words), then follow with detail. Start with the heading \"Pricing\".",
+      "impact": "high",
+      "effort": "moderate",
+      "snippet": "<h2>Pricing</h2>\n<p>[Answer the heading directly in one or two sentences, under 60 words.] [Then continue with detail, examples and links.]</p>",
+      "checkId": "answer-first",
+      "category": "content",
+      "pointsAvailable": 2,
+      "priority": 1.5
+    },
+    {
+      "title": "Add a short llms.txt file",
+      "why": "llms.txt is an emerging proposal for giving AI tools a plain-text map of your site. No major AI engine has confirmed that it reads it, so treat it as cheap insurance rather than a ranking factor.",
+      "how": "Create a plain text file and publish it at https://www.brightsidedental.example/llms.txt. List your most important pages with a one-line description each. Make sure the URL returns the text file itself, not your site's 404 page.",
+      "impact": "low",
+      "effort": "quick",
+      "snippet": "# Brightside Dental\n\n> Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you.\n\n## Key pages\n\n- [Home](https://www.brightsidedental.example/): Brightside Dental | Family Dentist in Austin, TX\n- [About](https://www.brightsidedental.example/about): Who we are and what we do\n- [Contact](https://www.brightsidedental.example/contact): How to reach us",
+      "checkId": "llms-txt",
+      "category": "crawlability",
+      "pointsAvailable": 3,
+      "priority": 1.35
+    },
+    {
+      "title": "Add a canonical link",
+      "why": "If the same page can be reached at several addresses (with or without www, with tracking parameters), a canonical link tells engines which one to treat as the original.",
+      "how": "Add a canonical link in the page head that points to the full address you want to appear in search.",
+      "impact": "medium",
+      "effort": "quick",
+      "snippet": "<link rel=\"canonical\" href=\"https://www.brightsidedental.example/\">",
+      "checkId": "canonical",
+      "category": "meta",
+      "pointsAvailable": 3,
+      "priority": 1.35
+    },
+    {
+      "title": "Add logo to your Organization markup",
+      "why": "Name, URL and logo are the basics engines use to recognise the brand and show it consistently.",
+      "how": "Add the missing property to the existing Dentist block. Use the address of a square or wide logo image, at least 112 pixels across.",
+      "impact": "medium",
+      "effort": "quick",
+      "snippet": "\"logo\": \"https://www.brightsidedental.example/logo.png\"",
+      "checkId": "schema-organization",
+      "category": "structured-data",
+      "pointsAvailable": 2,
+      "priority": 1.2
+    },
+    {
+      "title": "Add the missing Open Graph tags",
+      "why": "Open Graph tags give link previews, social networks and some AI tools a clean title, summary and image for the page instead of making them guess.",
+      "how": "Add the tags below to the page head. Replace the image address with a real image, ideally 1200 by 630 pixels. Most SEO plugins have fields for these.",
+      "impact": "medium",
+      "effort": "quick",
+      "snippet": "<meta property=\"og:description\" content=\"Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you.\">\n<meta property=\"og:image\" content=\"https://www.brightsidedental.example/og-image.jpg\">",
+      "checkId": "open-graph",
+      "category": "meta",
+      "pointsAvailable": 2,
+      "priority": 0.9
+    },
+    {
+      "title": "Add more useful, specific content",
+      "why": "Pages that explain a topic thoroughly give engines more to quote and more reason to trust the source. Thin pages are usually skipped in favour of fuller ones.",
+      "how": "Add the information customers ask about before they buy: how it works, pricing or price ranges, who it is for, proof such as case studies or reviews, and answers to common questions. Aim for 700 or more words of genuinely useful text; length for its own sake does not help.",
+      "impact": "low",
+      "effort": "involved",
+      "checkId": "substance",
+      "category": "content",
+      "pointsAvailable": 2,
+      "priority": 0.3
+    },
+    {
+      "title": "Shorten the meta description",
+      "why": "The description is the summary shown under your title. A complete, specific one reads better and is more likely to be reused.",
+      "how": "Rewrite it to 70 to 160 characters that say what the page offers and who it is for. A draft built from the page text is below.",
+      "impact": "low",
+      "effort": "quick",
+      "snippet": "<meta name=\"description\" content=\"Gentle family dentistry in South Austin Welcome to Brightside Dental, where your smile is our passion.\">",
+      "checkId": "meta-description",
+      "category": "meta",
+      "pointsAvailable": 1,
+      "priority": 0.22
+    },
+    {
+      "title": "Add a Twitter/X card tag",
+      "why": "This only affects how links look when shared on X. It has little effect on AI answers, so treat it as a finishing touch.",
+      "how": "Add the tag below. X will reuse your Open Graph title, description and image for the rest.",
+      "impact": "low",
+      "effort": "quick",
+      "snippet": "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+      "checkId": "twitter-card",
+      "category": "meta",
+      "pointsAvailable": 1,
+      "priority": 0.22
+    }
+  ],
+  "bots": [
+    {
+      "bot": "OAI-SearchBot",
+      "operator": "OpenAI",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "ChatGPT-User",
+      "operator": "OpenAI",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "PerplexityBot",
+      "operator": "Perplexity",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Perplexity-User",
+      "operator": "Perplexity",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Claude-SearchBot",
+      "operator": "Anthropic",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Claude-User",
+      "operator": "Anthropic",
+      "purpose": "answer",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Googlebot",
+      "operator": "Google",
+      "purpose": "search",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Bingbot",
+      "operator": "Microsoft",
+      "purpose": "search",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "GPTBot",
+      "operator": "OpenAI",
+      "purpose": "training",
+      "allowed": false,
+      "rule": "Disallow: /"
+    },
+    {
+      "bot": "ClaudeBot",
+      "operator": "Anthropic",
+      "purpose": "training",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "Google-Extended",
+      "operator": "Google",
+      "purpose": "training",
+      "allowed": false,
+      "rule": "Disallow: /"
+    },
+    {
+      "bot": "Applebot-Extended",
+      "operator": "Apple",
+      "purpose": "training",
+      "allowed": true,
+      "rule": "no matching rule"
+    },
+    {
+      "bot": "CCBot",
+      "operator": "Common Crawl",
+      "purpose": "training",
+      "allowed": false,
+      "rule": "Disallow: /"
+    },
+    {
+      "bot": "meta-externalagent",
+      "operator": "Meta",
+      "purpose": "training",
+      "allowed": true,
+      "rule": "no matching rule"
+    }
+  ],
+  "page": {
+    "finalUrl": "https://www.brightsidedental.example/",
+    "statusCode": 200,
+    "title": "Brightside Dental | Family Dentist in Austin, TX",
+    "metaDescription": "Welcome to Brightside Dental, Austin's friendliest family dental practice. We offer a full range of general, cosmetic and emergency dental services for the whole family, and we would love to meet you.",
+    "h1": [
+      "Gentle family dentistry in South Austin"
+    ],
+    "headings": [
+      {
+        "level": 1,
+        "text": "Gentle family dentistry in South Austin"
+      },
+      {
+        "level": 2,
+        "text": "Our services"
+      },
+      {
+        "level": 4,
+        "text": "Cleanings"
+      },
+      {
+        "level": 2,
+        "text": "Pricing"
+      },
+      {
+        "level": 2,
+        "text": "Meet the team"
+      },
+      {
+        "level": 4,
+        "text": "Dr. Rivera"
+      },
+      {
+        "level": 2,
+        "text": "Frequently asked questions"
+      }
+    ],
+    "wordCount": 437,
+    "textExcerpt": "Gentle family dentistry in South Austin Welcome to Brightside Dental, where your smile is our passion. Our friendly team has served South Austin families for over a decade, and we believe a visit to the dentist should feel relaxed, welcoming and even a little bit fun. Whether you are new to the area or looking for a fresh start, we would love to get to know you and your family and help everyone keep a healthy, confident smile for years to come. Our services We look after patients of every age, from a child's first check-up to crowns and implants for adults. Most treatment happens in our South Lamar office, and we keep same-week slots open for new patients and urgent problems. Here is what we offer. Cleanings and check-ups Fillings and crowns Invisalign clear aligners Teeth whitening Emergency appointments Cleanings A routine cleaning takes about forty-five minutes and includes an exam, polishing and, once a year, a set of digital X-rays. We send a reminder text two days before each visit. Pricing We accept most major PPO insurance plans, including Delta Dental, Cigna, Aetna and MetLife, and we file claims for you. If you do not have insurance, our in-house membership plan covers two cleanings, two exams and X-rays each year for one monthly fee, with a discount on other treatment. Payment plans are available for larger treatment such as crowns and Invisalign, and we will always give you a written estimate before any work begins so there are no surprises when the bill arrives. ",
+    "schemaTypes": [
+      "WebSite",
+      "Dentist"
+    ],
+    "businessName": "Brightside Dental",
+    "lang": "en"
+  },
+  "warnings": [
+    "The address redirected 1 time; results are for https://www.brightsidedental.example/."
+  ],
+  "durationMs": 3180
+}

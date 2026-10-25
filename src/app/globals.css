@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/*
+  Colour tokens. One accent (deep indigo) plus semantic pass / warn / fail / info.
+  Light by default; dark follows prefers-color-scheme.
+*/
+:root {
+  color-scheme: light dark;
+
+  --canvas: #f7f7fb;
+  --surface: #ffffff;
+  --surface-2: #f0f0f7;
+  --line: #e3e3ee;
+  --line-strong: #cfcfdf;
+
+  --fg: #14142b;
+  --muted: #55556e;
+
+  --accent: #4338ca;
+  --accent-hover: #3730a3;
+  --accent-fg: #ffffff;
+  --accent-soft: #eceafd;
+
+  --pass: #15803d;
+  --pass-soft: #e3f6e9;
+  --warn: #a15207;
+  --warn-soft: #fdf1d3;
+  --fail: #b91c1c;
+  --fail-soft: #fde8e8;
+  --info: #3f4f66;
+  --info-soft: #e8edf4;
+
+  --shadow-card: 0 1px 2px rgb(20 20 43 / 0.04), 0 4px 16px rgb(20 20 43 / 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0c0c18;
+    --surface: #14142a;
+    --surface-2: #1c1c38;
+    --line: #2a2a49;
+    --line-strong: #3a3a60;
+
+    --fg: #ededfa;
+    --muted: #a2a2bd;
+
+    --accent: #9a9cff;
+    --accent-hover: #b3b5ff;
+    --accent-fg: #0c0c24;
+    --accent-soft: #23234a;
+
+    --pass: #4ade80;
+    --pass-soft: #12301f;
+    --warn: #fbbf24;
+    --warn-soft: #36290d;
+    --fail: #f87171;
+    --fail-soft: #3a1717;
+    --info: #9fb0c9;
+    --info-soft: #1d2638;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-pass: var(--pass);
+  --color-pass-soft: var(--pass-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-fail: var(--fail);
+  --color-fail-soft: var(--fail-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+[id] {
+  scroll-margin-top: 1.5rem;
+}
+
+@layer components {
+.card {
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  &:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.btn-sm {
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
+}
+
+/* Gauge sweep: animates from an empty ring to the inline-styled final offset. */
+@keyframes gauge-sweep {
+  from {
+    stroke-dashoffset: var(--gauge-circ);
+  }
+}
+
+.gauge-arc {
+  animation: gauge-sweep 1000ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.step-in {
+  animation: step-in 300ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
