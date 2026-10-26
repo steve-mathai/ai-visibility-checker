@@ -75,6 +75,23 @@ Score colour comes from `scoreTone()` in `src/components/format.ts`: 75 and abov
 
 Plain, specific and calm. Short words. No exclamation marks, emoji or hype. Say what was found, why it matters, and what to do, in that order. When something is uncertain, say so in the same sentence.
 
+## Improvement backlog
+
+From a design review of v1 on 26 Oct 2026. Ordered by how much each one should help, highest first. None of these are logic bugs; they're presentation.
+
+| # | Change | Why | How | Effort |
+| --- | --- | --- | --- | --- |
+| 1 | Show a report preview on the landing page | Lead magnets convert better when visitors see the output before they type a URL. Today everything below the hero is text cards. | Put a static, scaled-down report card (score ring, grade, verdict, top two fixes) beside the form on desktop and under it on phones. Build it from `SAMPLE_REPORT` so it stays accurate, and link it to `/report?demo=1`. | Moderate |
+| 2 | Make the verdict smaller | On desktop the verdict runs three to four lines of large bold type and competes with the score. On a phone it fills most of the first screen. | Drop it one step (about `text-2xl` desktop, `text-xl` phone), keep it left-aligned on phones, and cap the line length around 40 characters. | Quick |
+| 3 | Retake the capped-report screenshot | `docs/screenshots/report-blocked.png` (CNN) shows an empty grey ring because the capture ran before the gauge animation finished. It's on the public README. | Retake with the DevTools script and a longer wait, or capture with reduced motion so the arc draws instantly. | Quick |
+| 4 | Make the jump links easier to see | The four links under the score ("Scores by category", "Fix these first"...) are important shortcuts but read as faint body links. | Turn them into a pill-style segmented nav, sticky under the header on long reports. | Quick |
+| 5 | Tighten the cap banner | It says the same thing twice (the reason, then a general sentence about blockers). | Keep the specific reason as the heading line and cut the second sentence to "Fix this first; the rest of the score can't count until it's solved." | Quick |
+| 6 | Show the fix count per category on the score bars | People scan the bars and then have to open each card to see what's wrong. | Add a small "2 fixes" chip next to each category score, linking to the first fix in that category. | Quick |
+| 7 | Add a print/PDF view | Marketers forward reports to managers who won't click a link. | A `@media print` stylesheet that expands all categories, hides buttons and fits on A4. | Moderate |
+| 8 | Per-report share image | Shared links currently preview with the site's generic card. | `next/og` image showing host, score and grade (also listed in phases.md, Phase 1.5). | Moderate |
+
+Done means: tsc, eslint, tests and build pass; landing and report checked at 1280px and 390px in light and dark; screenshots in `docs/screenshots/` retaken; README images still match.
+
 ## Screenshots
 
 Current screenshots live in `docs/screenshots/`. Desktop shots were taken with headless Edge at 1280px; the phone shot was taken at 390px with device emulation through the DevTools protocol.

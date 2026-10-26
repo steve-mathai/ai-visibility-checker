@@ -55,6 +55,7 @@ Facts, decisions and lessons that aren't obvious from the code. Newest entries a
 
 ## Open items
 
+- UI polish backlog (8 items) is in `docs/design.md` under "Improvement backlog". The CNN screenshot on the README shows an empty ring and should be retaken first.
 - Verify the AI summary with a real key and review output quality.
 - Choose an email or CRM tool for the re-check sign-up.
 - Decide on the deployment domain and whether the AI summary is on by default.
