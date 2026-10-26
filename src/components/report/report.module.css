@@ -1,0 +1,43 @@
+/*
+  Report-only styles that Tailwind utilities can't express.
+
+  Print: white ground, black ink. The colour tokens are variables, so
+  redefining them on the report root re-inks every utility below it, in
+  light and dark mode alike. Collapsed fixes, evidence rows and the other
+  category tabs are plain `hidden print:block` in the markup, so nothing
+  needs a script to expand before printing.
+*/
+.root {
+  min-height: 100svh;
+}
+
+@media print {
+  .root {
+    color-scheme: light;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+
+    --canvas: #ffffff;
+    --surface: #f1f3f4;
+    --surface-2: #e4e8ea;
+    --raised: #ffffff;
+    --line: #c9d0d3;
+    --line-strong: #8f9a9f;
+    --fg: #000000;
+    --muted: #2b3438;
+    --accent: #004b53;
+    --accent-soft: #e3f1f3;
+    --pass: #0b5a30;
+    --pass-soft: #e4f3ea;
+    --warn: #6b3f00;
+    --warn-soft: #f8eed6;
+    --fail: #8f1a10;
+    --fail-soft: #fbe6e3;
+    --info: #2b3438;
+    --info-soft: #e9eef0;
+
+    background: #ffffff;
+    color: #000000;
+    min-height: 0;
+  }
+}

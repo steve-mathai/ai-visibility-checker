@@ -1,34 +1,37 @@
 import Link from "next/link";
-import { Container } from "./Container";
-import { LogoMark } from "./Icons";
+import styles from "./landing/landing.module.css";
 import { SITE } from "./site";
 
+/** Landing nav: a plain bar, not sticky. The hero holds the action. */
 export function SiteHeader() {
   return (
-    <header className="border-b border-line bg-surface/80">
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 rounded-lg font-semibold tracking-tight"
-        >
-          <LogoMark />
-          <span>{SITE.name}</span>
+    <header className={styles.frame}>
+      <div className={styles.nav}>
+        <Link href="/" className={styles.wordmark} translate="no">
+          {SITE.name}
         </Link>
-        <nav aria-label="Primary" className="flex items-center gap-1 text-sm">
-          <Link
-            href="/#how-it-works"
-            className="hidden rounded-lg px-3 py-2 text-muted hover:text-fg sm:inline-block"
-          >
-            How it works
-          </Link>
-          <Link
-            href="/report?demo=1"
-            className="rounded-lg px-3 py-2 text-muted hover:text-fg"
-          >
-            Sample report
-          </Link>
+        <nav aria-label="Primary">
+          <ul className={styles.navLinks}>
+            <li>
+              <a href="#how" className={styles.navLink}>
+                How it works
+              </a>
+            </li>
+            <li>
+              <Link href="/report?demo=1" className={styles.navLink}>
+                Sample report
+              </Link>
+            </li>
+            {SITE.repoUrl ? (
+              <li>
+                <a href={SITE.repoUrl} rel="noopener" className={styles.navLink}>
+                  GitHub
+                </a>
+              </li>
+            ) : null}
+          </ul>
         </nav>
-      </Container>
+      </div>
     </header>
   );
 }

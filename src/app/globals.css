@@ -1,64 +1,82 @@
 @import "tailwindcss";
 
 /*
-  Colour tokens. One accent (deep indigo) plus semantic pass / warn / fail / info.
-  Light by default; dark follows prefers-color-scheme.
+  Design tokens. Direction "The product performs", palette "Frost and slate", type Clash Grotesk.
+  See docs/design.md. Light by default; dark follows prefers-color-scheme.
+
+  Roles:
+    canvas      page ground
+    surface     one tone step off the ground (tiles, fields, panels on the page)
+    raised      the report sheet and app cards (white in light mode)
+    fg / muted  ink and secondary ink, both full strength (4.5:1 or more)
+    accent      teal: the primary action and at most one other thing per screen
+    line        borders, only inside app fragments, tables and form fields
+    pass/warn/fail/info  data colours for check status and scores
 */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --canvas: #f7f7fb;
-  --surface: #ffffff;
-  --surface-2: #f0f0f7;
-  --line: #e3e3ee;
-  --line-strong: #cfcfdf;
+  --canvas: #f7f9fa;
+  --surface: #ecf0f2;
+  --surface-2: #e2e8eb;
+  --raised: #ffffff;
+  --line: #dde4e7;
+  --line-strong: #c3cdd2;
 
-  --fg: #14142b;
-  --muted: #55556e;
+  --fg: #1f3038;
+  --muted: #5d6b72;
 
-  --accent: #4338ca;
-  --accent-hover: #3730a3;
+  --accent: #0d7480;
+  --accent-hover: #0a5f69;
   --accent-fg: #ffffff;
-  --accent-soft: #eceafd;
+  --accent-soft: #dcf0f2;
 
-  --pass: #15803d;
-  --pass-soft: #e3f6e9;
-  --warn: #a15207;
-  --warn-soft: #fdf1d3;
-  --fail: #b91c1c;
-  --fail-soft: #fde8e8;
-  --info: #3f4f66;
-  --info-soft: #e8edf4;
+  --stage: #1f3038;
+  --stage-fg: #f7f9fa;
 
-  --shadow-card: 0 1px 2px rgb(20 20 43 / 0.04), 0 4px 16px rgb(20 20 43 / 0.04);
+  --pass: #1d7a4c;
+  --pass-soft: #e1f3e9;
+  --warn: #93590a;
+  --warn-soft: #fbf0d9;
+  --fail: #b42318;
+  --fail-soft: #fde8e6;
+  --info: #475e68;
+  --info-soft: #e6edf0;
+
+  --radius: 4px;
+  --radius-app: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #0c0c18;
-    --surface: #14142a;
-    --surface-2: #1c1c38;
-    --line: #2a2a49;
-    --line-strong: #3a3a60;
+    color-scheme: dark;
 
-    --fg: #ededfa;
-    --muted: #a2a2bd;
+    --canvas: #0e171b;
+    --surface: #16242a;
+    --surface-2: #1d2e35;
+    --raised: #132026;
+    --line: #263a42;
+    --line-strong: #35505a;
 
-    --accent: #9a9cff;
-    --accent-hover: #b3b5ff;
-    --accent-fg: #0c0c24;
-    --accent-soft: #23234a;
+    --fg: #e4ecee;
+    --muted: #9db0b7;
 
-    --pass: #4ade80;
+    --accent: #4fb8c4;
+    --accent-hover: #6fcad4;
+    --accent-fg: #062126;
+    --accent-soft: #123a40;
+
+    --stage: #e4ecee;
+    --stage-fg: #0e171b;
+
+    --pass: #5fd69a;
     --pass-soft: #12301f;
-    --warn: #fbbf24;
+    --warn: #f2b84b;
     --warn-soft: #36290d;
-    --fail: #f87171;
-    --fail-soft: #3a1717;
-    --info: #9fb0c9;
-    --info-soft: #1d2638;
-
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+    --fail: #f8806f;
+    --fail-soft: #3a1714;
+    --info: #a7bcc5;
+    --info-soft: #1d2b31;
   }
 }
 
@@ -66,6 +84,7 @@
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-raised: var(--raised);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-fg: var(--fg);
@@ -74,6 +93,8 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+  --color-stage: var(--stage);
+  --color-stage-fg: var(--stage-fg);
   --color-pass: var(--pass);
   --color-pass-soft: var(--pass-soft);
   --color-warn: var(--warn);
@@ -83,25 +104,52 @@
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Clash Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* The five type steps. Nothing on a page uses a sixth. Use as text-small, text-body, text-lead, text-head, text-display. */
+  --text-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --text-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --text-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --text-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+  --text-display: clamp(3rem, 1.6rem + 6vw, 7rem);
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: fine) {
+  html {
+    overscroll-behavior: none;
+  }
 }
 
 body {
   background: var(--canvas);
   color: var(--fg);
   font-family: var(--font-sans);
-  line-height: 1.6;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 ::selection {
@@ -110,65 +158,83 @@ body {
 }
 
 [id] {
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: 5rem;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 @layer components {
-.card {
-  border-radius: 1rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-}
+  /* App card: only inside the report sheet and data-ui fragments. */
+  .card {
+    border-radius: var(--radius-app);
+    background: var(--raised);
+    border: 1px solid var(--line); /* taste-skill-ignore: app-screen card edge */
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  line-height: 1.25rem;
-  cursor: pointer;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1.125rem;
+    border-radius: var(--radius);
+    font-size: var(--text-body);
+    font-weight: 500;
+    line-height: 1.25;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-fg);
+    &:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--fg);
+    &:hover:not(:disabled) {
+      background: var(--surface-2);
+    }
+  }
+
+  .btn-sm {
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    font-size: var(--text-small);
   }
 }
 
-.btn-primary {
-  background: var(--accent);
-  color: var(--accent-fg);
-  &:hover:not(:disabled) {
-    background: var(--accent-hover);
+/* Motion. Transform and opacity only; everything has a reduced-motion fallback below. */
+@keyframes line-rise {
+  from {
+    transform: translateY(105%);
   }
 }
 
-.btn-secondary {
-  background: var(--surface);
-  color: var(--fg);
-  border: 1px solid var(--line-strong);
-  &:hover:not(:disabled) {
-    background: var(--surface-2);
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
 }
 
-.btn-sm {
-  min-height: 2rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8125rem;
-  border-radius: 0.5rem;
-}
-}
-
-/* Gauge sweep: animates from an empty ring to the inline-styled final offset. */
 @keyframes gauge-sweep {
   from {
     stroke-dashoffset: var(--gauge-circ);
@@ -177,17 +243,6 @@ body {
 
 .gauge-arc {
   animation: gauge-sweep 1000ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes step-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-}
-
-.step-in {
-  animation: step-in 300ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

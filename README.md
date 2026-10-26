@@ -78,7 +78,7 @@ Testing on real sites turned up two bugs the unit tests hadn't. CNN's home page 
 
 ![Report for a page that blocks AI crawlers, with the score cap explained](docs/screenshots/report-blocked.png)
 
-<img src="docs/screenshots/report-mobile.png" alt="Sample report on a phone" width="320">
+<img src="docs/screenshots/report-mobile.png" alt="Sample report on a phone" width="320"> <img src="docs/screenshots/landing-mobile.png" alt="Landing page on a phone" width="320">
 
 ## The optional AI summary
 
@@ -87,6 +87,18 @@ If an `ANTHROPIC_API_KEY` is set, the report page makes one call to Claude (`cla
 Without a key, the panel shows one quiet line and the rest of the report is unchanged. The rules do the auditing, and the model only explains what they found. That means the score stays the same from one run to the next and costs nothing to produce.
 
 Details: structured outputs via `output_config.format` with a JSON schema, validated again with zod on the way back. Server-side refusal fallback is turned on, and every error becomes `{enabled: false, reason}` so the page never breaks. I couldn't run this path end to end because there's no API key on the machine I built it on. It typechecks against the current SDK and degrades correctly without a key, but the first real call is still to be done.
+
+## The design
+
+The first version looked like most generated landing pages: an indigo accent, a pill badge over a centred headline, a grid of icon cards, soft shadows on everything. When I ran it through the [taste skill](https://github.com/Leonxlnx/taste-skill)'s linter it failed 28 checks, which was fair.
+
+So I redesigned it properly. The skill dealt a direction called "The product performs": instead of describing features, the page shows small, working pieces of the product at real size. That fit, because the most convincing thing this tool has is its own output. The hero puts the URL field next to a real crop of a report. Below it is a board of actual results from real pages (each tile re-runs that check when you click it), then the one moment I wanted people to remember: a giant switch for PerplexityBot. Flip it and the robots.txt line and the verdict change ("Perplexity can't fetch this page, so it can't cite it"). That one line of a text file is the whole point of the tool, so it gets the biggest thing on the page.
+
+![The real-results board](docs/screenshots/landing-proof.png)
+
+![The PerplexityBot switch](docs/screenshots/landing-switch.png)
+
+The report page follows a different rule set, because it's a screen you work in rather than a page you scroll: quiet panels, colour spent on the data, real tables. Vercel's Web Interface Guidelines were the accessibility and interaction checklist, and the Vercel and Linear DESIGN.md files from [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) were the reference for control sizes and table rhythm. Both pages pass the skill's browser inspector at 1440, 768 and 390 pixels, in light and dark mode. The spec, the copy and every place I departed from the dealt direction (and why) are in [docs/design.md](docs/design.md).
 
 ## How it's built
 
@@ -101,7 +113,7 @@ Details: structured outputs via `output_config.format` with a JSON schema, valid
 
 - [Product requirements](docs/prd.md): problem, users, requirements, success metrics, risks
 - [Architecture](docs/architecture.md): request flow, audit pipeline, scoring, security, how to add a check
-- [Design](docs/design.md): principles, colour tokens, components, accessibility
+- [Design](docs/design.md): direction, tokens, section blueprints, copy, report screen, deviations
 - [Phases](docs/phases.md): roadmap from MVP to citation tracking, with exit criteria
 - [Rules](docs/rules.md): product, scoring, engineering and publishing rules for anyone working on it
 - [Memory](docs/memory.md): decisions log, real-site results, gotchas

@@ -19,7 +19,7 @@ Each phase ends in something shippable. Exit criteria are what has to be true be
 
 Goal: safe to share publicly.
 
-- UI polish from the improvement backlog in `docs/design.md` (items 1 to 6 before launch; 7 and 8 can follow).
+- Done 26 Oct 2026: full UI redesign to the tasteskill direction (see `docs/design.md`), which absorbed the old polish backlog, print view included. Still open: per-report share image.
 - Deploy to Vercel (owner approval needed). Decide on domain.
 - Run the AI summary end to end with a real key; check output quality on 5 sites and tune the prompt.
 - Move rate limiting to a shared store (Vercel KV or Upstash Redis).

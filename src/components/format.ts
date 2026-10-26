@@ -53,27 +53,45 @@ export function hostOf(url: string): string {
   }
 }
 
-/** Deterministic (UTC) so server and client render the same text. */
+const FETCHED_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "UTC",
+});
+
+const INTEGER_FORMAT = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 0,
+});
+
+const SECONDS_FORMAT = new Intl.NumberFormat("en-GB", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+/** Deterministic (UTC) so server and client render the same text: "25 Oct 2026, 19:16 UTC". */
 export function formatFetchedAt(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  const date = d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  const time = d.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
-  return `${date}, ${time} UTC`;
+  const parts: Record<string, string> = {};
+  for (const part of FETCHED_FORMAT.formatToParts(d)) {
+    parts[part.type] = part.value;
+  }
+  return `${parts.day} ${parts.month} ${parts.year}, ${parts.hour}:${parts.minute} UTC`;
 }
 
+/** "850 ms" below a second, "4.4 s" above. */
 export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${Math.round(ms)} ms`;
-  return `${(ms / 1000).toFixed(1)} s`;
+  if (ms < 1000) return `${INTEGER_FORMAT.format(ms)} ms`;
+  return `${SECONDS_FORMAT.format(ms / 1000)} s`;
+}
+
+/** Whole number with locale separators: 1,204. */
+export function formatNumber(value: number): string {
+  return INTEGER_FORMAT.format(value);
 }
 
 export type UrlCheck =

@@ -34,6 +34,7 @@ export function CopyButton({
   copiedLabel = "Copied",
   ariaLabel,
   className = "btn btn-secondary btn-sm",
+  compact = false,
 }: {
   /** The text to copy, or a function evaluated at click time. */
   text: string | (() => string);
@@ -41,6 +42,8 @@ export function CopyButton({
   copiedLabel?: string;
   ariaLabel?: string;
   className?: string;
+  /** Below the sm breakpoint show only the icon; the label stays as the accessible name. */
+  compact?: boolean;
 }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,7 +70,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={onClick}
-      className={className}
+      className={`${className} print:hidden`}
       aria-label={ariaLabel}
     >
       {state === "copied" ? (
@@ -75,7 +78,12 @@ export function CopyButton({
       ) : (
         <CopyIcon className="size-4" />
       )}
-      <span aria-live="polite">{shown}</span>
+      <span
+        aria-live="polite"
+        className={compact ? "max-sm:sr-only" : undefined}
+      >
+        {shown}
+      </span>
     </button>
   );
 }

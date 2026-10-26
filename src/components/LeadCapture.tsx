@@ -20,6 +20,7 @@ export function LeadCapture({
 }) {
   const inputId = useId();
   const errorId = useId();
+  const noteId = useId();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -50,69 +51,66 @@ export function LeadCapture({
   return (
     <section
       aria-labelledby="lead-title"
-      className="rounded-2xl border border-line bg-accent-soft p-6 sm:p-8"
+      className="card grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:items-start md:gap-8"
     >
-      <div className="grid gap-6 md:grid-cols-2 md:items-center">
-        <div>
-          <h2
-            id="lead-title"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            Want this re-checked every month?
-          </h2>
-          <p className="mt-2 text-muted">
-            Scores move when sites change. A monthly re-check would flag
-            regressions, such as a new robots.txt rule or a lost schema block,
-            before they cost you citations.
-          </p>
-        </div>
+      <div>
+        <h2 id="lead-title" className="text-base font-semibold">
+          Re-check this page every month
+        </h2>
+        <p className="mt-1 max-w-[56ch] text-[13px] text-muted">
+          Scores move when a site changes: a new robots.txt rule, a lost
+          structured-data block. A monthly reminder tells you when to run the
+          check again.
+        </p>
+      </div>
 
-        <div aria-live="polite">
-          {done ? (
-            <p className="rounded-xl border border-line bg-surface p-4 text-sm">
-              Thanks &mdash; this is a demo; email capture isn&rsquo;t wired up
-              in v1.
-            </p>
-          ) : (
-            <form onSubmit={handleSubmit} noValidate>
-              <label htmlFor={inputId} className="block text-sm font-medium">
-                Work email
-              </label>
-              <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
-                <input
-                  id={inputId}
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (error) setError(null);
-                  }}
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? errorId : undefined}
-                  className="min-h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-surface px-3 text-base placeholder:text-muted/70"
-                />
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="btn btn-primary min-h-11"
-                >
-                  Remind me monthly
-                </button>
-              </div>
-              {error && (
-                <p id={errorId} role="alert" className="mt-2 text-sm text-fail">
-                  {error}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-muted">
-                Demo only in v1. Nothing is sent or stored.
+      <div aria-live="polite">
+        {done ? (
+          <p className="rounded-lg bg-surface px-3 py-2.5 text-[13px]">
+            Thanks. This is a demo, so nothing was sent or stored.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate>
+            <label htmlFor={inputId} className="block text-[13px] font-medium">
+              Email address
+            </label>
+            <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
+              <input
+                id={inputId}
+                name="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
+                placeholder="name@company.com…"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError(null);
+                }}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${errorId} ${noteId}` : noteId}
+                className="h-12 min-w-0 sm:h-8 sm:flex-1 rounded border border-line-strong bg-raised px-3 text-sm text-fg placeholder:text-muted focus-visible:outline-offset-0"
+              />
+              <button
+                type="submit"
+                disabled={busy}
+                className="btn btn-primary btn-sm shrink-0 max-sm:min-h-12 max-sm:w-full"
+              >
+                {busy ? "Saving…" : "Remind me monthly"}
+              </button>
+            </div>
+            {error && (
+              <p id={errorId} role="alert" className="mt-1.5 text-[13px] text-fail">
+                {error}
               </p>
-            </form>
-          )}
-        </div>
+            )}
+            <p id={noteId} className="mt-1.5 text-[13px] text-muted">
+              Demo only: nothing is sent or stored.
+            </p>
+          </form>
+        )}
       </div>
     </section>
   );

@@ -5,11 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { SAMPLE_REPORT, SAMPLE_SUMMARY } from "@/dev/sample-report";
 import type { AuditReport } from "@/lib/audit/types";
 import { requestAudit } from "../api";
-import { Container } from "../Container";
 import { UrlForm } from "../UrlForm";
 import { hostOf, normaliseUrl } from "../format";
+import { Column } from "./Column";
 import { ErrorState } from "./ErrorState";
 import { LoadingSteps } from "./LoadingSteps";
+import { ReportFrame } from "./ReportFrame";
 import { ReportView } from "./ReportView";
 
 type AuditState =
@@ -38,26 +39,24 @@ function AuditRun({ url, onRetry }: { url: string; onRetry: () => void }) {
     document.title = `Checking ${hostOf(url)} · AI Visibility Checker`;
   }, [url]);
 
-  if (state.status === "loading") {
-    return (
-      <Container>
-        <LoadingSteps host={hostOf(url)} />
-      </Container>
-    );
-  }
-  if (state.status === "error") {
-    return (
-      <Container>
-        <ErrorState
-          code={state.code}
-          message={state.message}
-          target={url}
-          onRetry={onRetry}
-        />
-      </Container>
-    );
-  }
-  return <ReportView report={state.report} />;
+  if (state.status === "done") return <ReportView report={state.report} />;
+
+  return (
+    <ReportFrame>
+      <Column className="py-12 sm:py-16">
+        {state.status === "loading" ? (
+          <LoadingSteps host={hostOf(url)} />
+        ) : (
+          <ErrorState
+            code={state.code}
+            message={state.message}
+            target={url}
+            onRetry={onRetry}
+          />
+        )}
+      </Column>
+    </ReportFrame>
+  );
 }
 
 function AuditRunner({ url }: { url: string }) {
@@ -73,17 +72,19 @@ function AuditRunner({ url }: { url: string }) {
 
 function MissingUrl() {
   return (
-    <Container>
-      <div className="mx-auto max-w-2xl py-16 sm:py-24">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Which page should we check?
-        </h1>
-        <p className="mb-6 mt-2 text-muted">
-          This link has no web address in it. Enter one below.
-        </p>
-        <UrlForm autoFocus />
-      </div>
-    </Container>
+    <ReportFrame>
+      <Column className="py-12 sm:py-16">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Which page should we check?
+          </h1>
+          <p className="mb-6 mt-2 text-sm text-muted">
+            This link has no web address in it. Enter one below.
+          </p>
+          <UrlForm autoFocus />
+        </div>
+      </Column>
+    </ReportFrame>
   );
 }
 
@@ -101,9 +102,11 @@ export function ReportClient() {
   const check = normaliseUrl(rawUrl);
   if (!check.ok) {
     return (
-      <Container>
-        <ErrorState code="invalid_url" message={check.message} target={rawUrl} />
-      </Container>
+      <ReportFrame>
+        <Column className="py-12 sm:py-16">
+          <ErrorState code="invalid_url" message={check.message} target={rawUrl} />
+        </Column>
+      </ReportFrame>
     );
   }
   return <AuditRunner url={check.url} />;
