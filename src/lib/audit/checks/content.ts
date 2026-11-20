@@ -1,6 +1,6 @@
 import type { CheckResult } from "../types";
 import type { AuditContext } from "../context";
-import { brandName, check, fix, hasType, isQuestionHeading, plural, questionSections, truncate } from "./util";
+import { brandName, check, escapeHtml, fix, hasType, isQuestionHeading, plural, questionSections, truncate } from "./util";
 
 const CAT = "content" as const;
 
@@ -21,7 +21,7 @@ function singleH1(ctx: AuditContext): CheckResult {
         "Add a single H1 near the top of the page that says in plain words what the page covers. Your page builder may call this the \"Heading 1\" style.",
         "high",
         "quick",
-        `<h1>${suggestion}</h1>`,
+        `<h1>${escapeHtml(suggestion)}</h1>`,
       ),
     });
   }
@@ -140,11 +140,11 @@ function faqBlock(ctx: AuditContext): CheckResult {
   const snippet = [
     "<h2>Frequently asked questions</h2>",
     "<details>",
-    `  <summary>What does ${brand} do?</summary>`,
+    `  <summary>What does ${escapeHtml(brand)} do?</summary>`,
     "  <p>[Answer in one or two sentences, under 60 words.]</p>",
     "</details>",
     "<details>",
-    `  <summary>How can I contact ${brand}?</summary>`,
+    `  <summary>How can I contact ${escapeHtml(brand)}?</summary>`,
     "  <p>[Answer in one or two sentences, under 60 words.]</p>",
     "</details>",
   ].join("\n");
@@ -183,7 +183,8 @@ function answerFirst(ctx: AuditContext): CheckResult {
   const long = sections.filter((s) => s.firstParagraphWords > 100);
   const absent = sections.filter((s) => !s.followedByList && !s.firstParagraph);
   const ratio = good.length / total;
-  const bad = sections.filter((s) => !good.includes(s));
+  const goodSet = new Set(good);
+  const bad = sections.filter((s) => !goodSet.has(s));
   const evidence = [
     `${good.length} of ${total} sections open with a concise answer`,
     ...bad.slice(0, 4).map((s) => `"${truncate(s.heading, 50)}": ${s.firstParagraph ? `${s.firstParagraphWords} words in the first paragraph` : "no paragraph directly below"}`),
@@ -192,7 +193,7 @@ function answerFirst(ctx: AuditContext): CheckResult {
     return check(CAT, "answer-first", "Sections open with a direct answer", max, "pass", max, `${good.length} of ${total} sections open with a short, self-contained answer.`, { evidence });
   }
   const example = bad[0] ?? sections[0];
-  const snippet = [`<h2>${example.heading}</h2>`, "<p>[Answer the heading directly in one or two sentences, under 60 words.] [Then continue with detail, examples and links.]</p>"].join("\n");
+  const snippet = [`<h2>${escapeHtml(example.heading)}</h2>`, "<p>[Answer the heading directly in one or two sentences, under 60 words.] [Then continue with detail, examples and links.]</p>"].join("\n");
   const detail = long.length > absent.length ? `${long.length} open with a paragraph over 100 words` : absent.length ? `${absent.length} have no paragraph directly under the heading` : "the first paragraphs are too short or too long to quote";
   const points = ratio >= 0.3 ? 3 : good.length === 0 && total >= 3 ? 0 : 1;
   return check(CAT, "answer-first", "Sections open with a direct answer", max, points === 0 ? "fail" : "warn", points, `Only ${good.length} of ${total} sections open with a concise answer; ${detail}.`, {

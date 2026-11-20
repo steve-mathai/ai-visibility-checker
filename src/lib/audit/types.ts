@@ -108,6 +108,8 @@ export interface AuditReport {
   /** Non-fatal problems while auditing (robots.txt timed out, etc.). */
   warnings: string[];
   durationMs: number;
+  /** Server-signed proof that this report came from a real audit; echoed back to /api/summary. */
+  summaryToken?: string;
 }
 
 export interface AuditError {

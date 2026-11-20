@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { AiSummary, AuditReport, CategoryScore } from "@/lib/audit/types";
 import { requestSummary } from "../api";
 import { LeadCapture } from "../LeadCapture";
-import { formatDuration, formatFetchedAt, hostOf } from "../format";
+import { formatDuration, formatFetchedAt, hostOf, isHttpUrl } from "../format";
 import { SITE } from "../site";
 import { AiSummaryPanel, type SummaryState } from "./AiSummaryPanel";
 import { BotTable } from "./BotTable";
@@ -87,15 +87,21 @@ export function ReportView({
             <span translate="no">{host}</span>
           </h1>
           <p className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] leading-5 text-muted">
-            <a
-              href={report.url}
-              target="_blank"
-              rel="nofollow noopener noreferrer"
-              translate="no"
-              className="min-w-0 break-all text-accent underline underline-offset-4 hover:text-accent-hover"
-            >
-              {report.url}
-            </a>
+            {isHttpUrl(report.url) ? (
+              <a
+                href={report.url}
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                translate="no"
+                className="min-w-0 break-all text-accent underline underline-offset-4 hover:text-accent-hover"
+              >
+                {report.url}
+              </a>
+            ) : (
+              <span translate="no" className="min-w-0 break-all">
+                {report.url}
+              </span>
+            )}
             <span aria-hidden="true">·</span>
             <span>
               Fetched{" "}
@@ -168,6 +174,7 @@ export function ReportView({
           </p>
           <p className="shrink-0">Built by {SITE.author}</p>
         </footer>
+        <p className="mt-2 text-[13px] text-muted">{SITE.copyright}</p>
       </Column>
     </ReportFrame>
   );

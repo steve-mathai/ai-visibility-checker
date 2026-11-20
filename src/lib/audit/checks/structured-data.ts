@@ -13,6 +13,7 @@ import {
   nodeString,
   nodeValue,
   plural,
+  safeJsonForScript,
   questionSections,
   truncate,
 } from "./util";
@@ -53,7 +54,7 @@ function orgData(ctx: AuditContext, onlyMissing?: { name: boolean; url: boolean;
 }
 
 function fragment(obj: Record<string, unknown>): string {
-  const lines = JSON.stringify(obj, null, 2).split("\n");
+  const lines = safeJsonForScript(obj).split("\n");
   return lines.slice(1, -1).map((l) => l.trim()).join("\n");
 }
 

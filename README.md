@@ -190,4 +190,10 @@ In order, with the reason for each:
 
 ---
 
-Built by Steve Mathew.
+## Copyright
+
+© 2026 Steve Mathai Mathew. All rights reserved.
+
+See [LICENSE](LICENSE).
+
+Built by Steve Mathai Mathew.

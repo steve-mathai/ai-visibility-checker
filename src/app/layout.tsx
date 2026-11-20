@@ -2,7 +2,20 @@ import type { Metadata, Viewport } from "next";
 import { SITE } from "@/components/site";
 import "./globals.css";
 
+const OG_IMAGE = {
+  url: "/og-default.png",
+  width: 1200,
+  height: 630,
+  alt: "AI Visibility Checker: the [/] mark beside the name and the question “Can AI answer engines find and cite your page?”",
+};
+
+function siteOrigin(): string {
+  const prod = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return prod ? `https://${prod}` : `http://localhost:${process.env.PORT ?? 3000}`;
+}
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: "AI Visibility Checker: can AI engines cite your page?",
     template: "%s · AI Visibility Checker",
@@ -13,21 +26,25 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     title: "AI Visibility Checker: can AI engines cite your page?",
     description: SITE.description,
+    images: [OG_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "AI Visibility Checker: can AI engines cite your page?",
     description: SITE.description,
+    images: [OG_IMAGE],
   },
+  authors: [{ name: "Steve Mathai Mathew" }],
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f9fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e171b" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f7f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#14232b" },
   ],
 };
 

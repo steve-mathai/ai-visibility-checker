@@ -45,6 +45,16 @@ export const EFFORT_LABEL: Record<Effort, string> = {
   involved: "Involved",
 };
 
+/** True only for an absolute http(s) address. Guards every href built from report data. */
+export function isHttpUrl(url: string): boolean {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function hostOf(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");

@@ -70,7 +70,8 @@ export function ScoreGauge({
       </svg>
       <div
         aria-hidden="true"
-        className="absolute inset-0 flex flex-col items-center justify-center text-fg"
+        className="absolute flex flex-col items-center justify-center rounded-full bg-hl text-hl-fg"
+        style={{ inset: Math.round(px * 0.12) }}
       >
         <span
           className="font-semibold leading-none tabular-nums tracking-tight"
@@ -79,7 +80,7 @@ export function ScoreGauge({
           {shown}
         </span>
         <span
-          className="mt-1 leading-none text-muted"
+          className="mt-1 leading-none"
           style={{ fontSize: Math.max(11, Math.round(px * 0.12)) }}
         >
           Grade {grade}

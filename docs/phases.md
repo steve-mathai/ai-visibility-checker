@@ -19,14 +19,19 @@ Each phase ends in something shippable. Exit criteria are what has to be true be
 
 Goal: safe to share publicly.
 
-- Done 26 Oct 2026: full UI redesign to the tasteskill direction (see `docs/design.md`), which absorbed the old polish backlog, print view included. Still open: per-report share image.
-- Deploy to Vercel (owner approval needed). Decide on domain.
+- Done 26 Oct 2026: full UI redesign to the tasteskill direction (see `docs/design.md`), which absorbed the old polish backlog, print view included.
+- Done 7 Nov 2026 (uncommitted, awaiting the owner's OK to commit):
+  - **Security audit and hardening.** 7 findings, all fixed with regression tests; see `docs/security-audit.md`. This covers:
+    - the DNS-rebinding gap, closed by pinning the validated IP;
+    - a rate-limit store adapter (Upstash/Vercel KV, with an in-memory LRU fallback);
+    - a 24 h per-URL summary cache, an HMAC summary token and a daily budget;
+    - security headers;
+    - `SECURITY.md` and Dependabot.
+  - **Rebrand.** A new "[/]" mark and asset set in `brand/`, with the palette re-tuned to ink, frost and citation lime, plus the favicon, manifest and default OG card. A per-report share image comes from `/api/og` (host only; a score taken from the URL is never trusted). Also added: the copyright footer, `LICENSE` and the README section.
+- Deploy to Vercel (owner approval needed). Decide on domain. Set `TRUST_PROXY`, the KV env vars, `SUMMARY_SIGNING_SECRET` and `SUMMARY_DAILY_LIMIT`, and an Anthropic spend cap.
 - Run the AI summary end to end with a real key; check output quality on 5 sites and tune the prompt.
-- Move rate limiting to a shared store (Vercel KV or Upstash Redis).
-- Cache AI summaries per URL for 24 h so a viral share link doesn't trigger a paid call per view.
-- Open Graph share image per report (score, grade, host) via `next/og`.
-- Privacy-friendly analytics (Vercel Analytics or Plausible) with events: audit started, audit finished, fix snippet copied, share link copied, email submitted.
-- Close the DNS-rebinding gap in the SSRF guard by pinning the resolved IP.
+- Privacy-friendly analytics (Vercel Analytics or Plausible) with events: audit started, audit finished, fix snippet copied, share link copied, email submitted. Owner to choose the provider.
+- Validate the audit's deployment questions on staging (proxy headers, concurrency model, private egress); see `docs/security-audit.md`.
 - Exit: live URL, summary verified, analytics recording, rate limit and cache shared across instances.
 
 ## Phase 2: Lead capture and re-check

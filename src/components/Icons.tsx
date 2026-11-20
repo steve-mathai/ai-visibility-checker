@@ -148,33 +148,6 @@ export function Spinner({ className = "size-5" }: IconProps) {
   );
 }
 
-export function LogoMark({ className = "size-7" }: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      className={className}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect width="32" height="32" rx="8" fill="var(--accent)" />
-      <circle
-        cx="15"
-        cy="15"
-        r="6"
-        fill="none"
-        stroke="var(--accent-fg)"
-        strokeWidth="2.6"
-      />
-      <path
-        d="M19.5 19.5 25 25"
-        stroke="var(--accent-fg)"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 /* Category icons for the landing page. */
 export function CategoryIcon({
   id,

@@ -2,7 +2,7 @@ import type { CheckResult } from "../types";
 import type { AuditContext } from "../context";
 import { digitsOnly, titleSegments } from "../parse";
 import { asStringArray, isLocalType, isNode, typesOf } from "../schema";
-import { brandName, check, findOrgNode, findSiteLinks, fix, hasType, normaliseName, nodeString, truncate } from "./util";
+import { brandName, check, escapeHtml, safeJsonForScript, findOrgNode, findSiteLinks, fix, hasType, normaliseName, nodeString, truncate } from "./util";
 
 const CAT = "entity" as const;
 
@@ -39,9 +39,9 @@ function businessName(ctx: AuditContext): CheckResult {
   const sourceCount = [schemaName, ogName, p.facts.title].filter(Boolean).length;
   const canonical = schemaName ?? ogName ?? brandName(ctx);
   const snippet = [
-    `<meta property="og:site_name" content="${canonical}">`,
-    `<title>Page topic | ${canonical}</title>`,
-    `"name": "${canonical}"  <!-- inside your Organization JSON-LD -->`,
+    `<meta property="og:site_name" content="${escapeHtml(canonical)}">`,
+    `<title>Page topic | ${escapeHtml(canonical)}</title>`,
+    `"name": ${safeJsonForScript(canonical)}  <!-- inside your Organization JSON-LD -->`,
   ].join("\n");
 
   if (pairs.length) {
@@ -181,8 +181,8 @@ function aboutContact(ctx: AuditContext): CheckResult {
   const missing = [!links.about && "an About page", !links.contact && "a Contact page"].filter(Boolean).join(" or ");
   const origin = ctx.page.url.origin;
   const rows = [
-    !links.about && `<a href="${origin}/about">About us</a>`,
-    !links.contact && `<a href="${origin}/contact">Contact</a>`,
+    !links.about && `<a href="${escapeHtml(origin)}/about">About us</a>`,
+    !links.contact && `<a href="${escapeHtml(origin)}/contact">Contact</a>`,
   ].filter(Boolean) as string[];
   return check(CAT, "about-contact", "About and Contact pages are linked", max, "warn", points, `No link to ${missing} was found on this page.`, {
     evidence,

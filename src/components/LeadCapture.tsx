@@ -91,7 +91,7 @@ export function LeadCapture({
                 }}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? `${errorId} ${noteId}` : noteId}
-                className="h-12 min-w-0 sm:h-8 sm:flex-1 rounded border border-line-strong bg-raised px-3 text-sm text-fg placeholder:text-muted focus-visible:outline-offset-0"
+                className="h-12 min-w-0 sm:h-8 sm:flex-1 rounded border border-line-strong bg-raised px-3 text-base text-fg sm:text-sm placeholder:text-muted focus-visible:outline-offset-0"
               />
               <button
                 type="submit"

@@ -5,9 +5,11 @@
 export const SITE = {
   name: "AI Visibility Checker",
   /** Shown in the footer as "Built by ...". */
-  author: "Steve Mathew",
+  author: "Steve Mathai Mathew",
   /** Link to the repository, or leave empty to hide the link. */
   repoUrl: "https://github.com/steve-mathai/ai-visibility-checker",
+  /** Shown in every footer, exactly as written. */
+  copyright: "© 2026 Steve Mathai Mathew. All rights reserved.",
   description:
     "Paste a web address and see how likely ChatGPT, Perplexity, Google AI Overviews and Claude are to find and cite that page, with a ranked list of fixes.",
 } as const;

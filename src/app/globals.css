@@ -1,38 +1,45 @@
 @import "tailwindcss";
 
 /*
-  Design tokens. Direction "The product performs", palette "Frost and slate", type Clash Grotesk.
-  See docs/design.md. Light by default; dark follows prefers-color-scheme.
+  Design tokens. Direction "The product performs", palette "Ink, frost and citation lime" (the [/] logo),
+  type Clash Grotesk. See docs/design.md. Light by default; dark follows prefers-color-scheme.
 
   Roles:
-    canvas      page ground
+    canvas      page ground (frost in light, ink in dark)
     surface     one tone step off the ground (tiles, fields, panels on the page)
-    raised      the report sheet and app cards (white in light mode)
-    fg / muted  ink and secondary ink, both full strength (4.5:1 or more)
-    accent      teal: the primary action and at most one other thing per screen
+    raised      the report sheet and app cards
+    fg / muted  ink and secondary ink, both 4.5:1 or more
+    accent      the action: ink fill with frost text in light, lime fill with ink text in dark.
+                Also link colour, active tab line and focus ring (ink in light, lime in dark).
+    hl          citation lime. A FILL only, always with hl-fg (ink) on top: highlighter marks, score
+                chips, the selected row, the switch thumb, feature fields. Never text or a thin line
+                on a light ground.
     line        borders, only inside app fragments, tables and form fields
     pass/warn/fail/info  data colours for check status and scores
 */
 :root {
   color-scheme: light;
 
-  --canvas: #f7f9fa;
-  --surface: #ecf0f2;
-  --surface-2: #e2e8eb;
+  --canvas: #f4f7f8;
+  --surface: #e9eff1;
+  --surface-2: #dde6e9;
   --raised: #ffffff;
-  --line: #dde4e7;
-  --line-strong: #c3cdd2;
+  --line: #d6dfe3;
+  --line-strong: #b5c3c9;
 
-  --fg: #1f3038;
-  --muted: #5d6b72;
+  --fg: #14232b;
+  --muted: #4e5e66;
 
-  --accent: #0d7480;
-  --accent-hover: #0a5f69;
-  --accent-fg: #ffffff;
-  --accent-soft: #dcf0f2;
+  --accent: #14232b;
+  --accent-hover: #2a3f4a;
+  --accent-fg: #f4f7f8;
 
-  --stage: #1f3038;
-  --stage-fg: #f7f9fa;
+  --hl: #d9f24e;
+  --hl-fg: #14232b;
+
+  --stage: #14232b;
+  --stage-off: #2d4553;
+  --stage-fg: #f4f7f8;
 
   --pass: #1d7a4c;
   --pass-soft: #e1f3e9;
@@ -51,23 +58,23 @@
   :root {
     color-scheme: dark;
 
-    --canvas: #0e171b;
-    --surface: #16242a;
-    --surface-2: #1d2e35;
-    --raised: #132026;
-    --line: #263a42;
-    --line-strong: #35505a;
+    --canvas: #14232b;
+    --surface: #1c303a;
+    --surface-2: #243b47;
+    --raised: #192b34;
+    --line: #2d4552;
+    --line-strong: #416270;
 
-    --fg: #e4ecee;
-    --muted: #9db0b7;
+    --fg: #f4f7f8;
+    --muted: #a5b6bd;
 
-    --accent: #4fb8c4;
-    --accent-hover: #6fcad4;
-    --accent-fg: #062126;
-    --accent-soft: #123a40;
+    --accent: #d9f24e;
+    --accent-hover: #e7f77f;
+    --accent-fg: #14232b;
 
-    --stage: #e4ecee;
-    --stage-fg: #0e171b;
+    --stage: #f4f7f8;
+    --stage-off: #dce5e8;
+    --stage-fg: #14232b;
 
     --pass: #5fd69a;
     --pass-soft: #12301f;
@@ -92,8 +99,10 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
-  --color-accent-soft: var(--accent-soft);
+  --color-hl: var(--hl);
+  --color-hl-fg: var(--hl-fg);
   --color-stage: var(--stage);
+  --color-stage-off: var(--stage-off);
   --color-stage-fg: var(--stage-fg);
   --color-pass: var(--pass);
   --color-pass-soft: var(--pass-soft);
@@ -105,7 +114,7 @@
   --color-info-soft: var(--info-soft);
 
   --font-sans: "Clash Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* taste-skill-ignore: real code only */
 
   /* The five type steps. Nothing on a page uses a sixth. Use as text-small, text-body, text-lead, text-head, text-display. */
   --text-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
@@ -152,9 +161,35 @@ p {
   outline-offset: 3px;
 }
 
+/* Focus moment: a lime halo beside the ink ring on light grounds (a fill beside ink, never the line itself). */
+@media (prefers-color-scheme: light) {
+  :focus-visible {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--hl) 75%, transparent); /* taste-skill-ignore: focus halo, a lime fill beside the ink ring */
+  }
+}
+
+/* The [/] brand mark. Brackets follow the ink; the slash is ink on the lime block on light grounds and
+   lime alone on dark grounds. data-on="fg" is for a tile filled with the ink colour (--fg). */
+.brand {
+  --brk: var(--fg);
+  --slash: #14232b;
+}
+.brand[data-on="fg"] {
+  --brk: var(--canvas);
+  --slash: #d9f24e;
+}
+@media (prefers-color-scheme: dark) {
+  .brand {
+    --slash: #d9f24e;
+  }
+  .brand[data-on="fg"] {
+    --slash: #14232b;
+  }
+}
+
 ::selection {
-  background: var(--accent-soft);
-  color: var(--fg);
+  background: var(--hl);
+  color: var(--hl-fg);
 }
 
 [id] {
@@ -180,6 +215,8 @@ p {
     gap: 0.5rem;
     min-height: 2.75rem;
     padding: 0.625rem 1.125rem;
+    user-select: none;
+    -webkit-touch-callout: none;
     border-radius: var(--radius);
     font-size: var(--text-body);
     font-weight: 500;
@@ -201,7 +238,12 @@ p {
   .btn-primary {
     background: var(--accent);
     color: var(--accent-fg);
-    &:hover:not(:disabled) {
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        background: var(--accent-hover);
+      }
+    }
+    &:active:not(:disabled) {
       background: var(--accent-hover);
     }
   }
@@ -209,7 +251,12 @@ p {
   .btn-secondary {
     background: var(--surface);
     color: var(--fg);
-    &:hover:not(:disabled) {
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        background: var(--surface-2);
+      }
+    }
+    &:active:not(:disabled) {
       background: var(--surface-2);
     }
   }

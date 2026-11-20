@@ -87,6 +87,9 @@ export const CATEGORY_ROWS = [
 
 export const TOP_FIX = REPORT.fixes[0];
 
+/** The first three rows of the report's "Fix these first" list. */
+export const FIX_ROWS = REPORT.fixes.slice(0, 3);
+
 /** The first before-and-after pair in the top fix's own instructions. */
 const pair = /"([^"]+)" becomes "([^"]+)"/.exec(TOP_FIX.how);
 export const TOP_FIX_EXAMPLE = {

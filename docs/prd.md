@@ -1,7 +1,7 @@
 # Product requirements: AI Visibility Checker
 
 Status: v1 built and public on GitHub (26 Oct 2026). Not yet deployed.
-Owner: Steve Mathew.
+Owner: Steve Mathai Mathew.
 
 ## 1. Summary
 

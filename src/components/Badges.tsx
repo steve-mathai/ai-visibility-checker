@@ -10,7 +10,7 @@ const PILL_CLASS: Record<PillTone, string> = {
   warn: "bg-warn-soft text-warn",
   fail: "bg-fail-soft text-fail",
   info: "bg-info-soft text-info",
-  accent: "bg-accent-soft text-accent",
+  accent: "bg-hl text-hl-fg",
   neutral: "bg-surface text-muted",
 };
 

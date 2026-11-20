@@ -2,6 +2,8 @@
   "name": "ai-visibility-checker",
   "version": "0.1.0",
   "private": true,
+  "author": "Steve Mathai Mathew",
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

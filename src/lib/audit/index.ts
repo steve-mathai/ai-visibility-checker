@@ -2,7 +2,7 @@ import type { AuditError, AuditReport } from "./types";
 import { evaluateBots } from "./bots";
 import { runChecks } from "./checks";
 import type { AuditContext, LlmsInfo, RobotsInfo, SitemapInfo } from "./context";
-import { FetchError, normaliseUrl, safeFetch, type SafeFetchResult } from "./fetch";
+import { createLookupCache, FetchError, normaliseUrl, safeFetch, type RequestImpl, type Resolver, type SafeFetchOptions, type SafeFetchResult } from "./fetch";
 import { parsePage } from "./parse";
 import { parseRobots } from "./robots";
 import { scoreChecks } from "./score";
@@ -83,7 +83,7 @@ export function analyse(input: AnalyseInput, requestedUrl: string, startedAt = D
     fixes: scored.fixes,
     bots: ctx.bots,
     page: ctx.page.facts,
-    warnings: input.warnings ?? [],
+    warnings: [...(input.warnings ?? []), ...ctx.page.parseWarnings],
     durationMs: Date.now() - startedAt,
   };
   if (scored.cappedBy) report.cappedBy = scored.cappedBy;
@@ -95,7 +95,20 @@ export function analyse(input: AnalyseInput, requestedUrl: string, startedAt = D
 // ---------------------------------------------------------------------------
 
 // News homepages can ship 5+ MB of inline JSON before <body>; 2 MB cut CNN off before any text.
+// Kept at 8 MB: memory is bounded by the element-count guard in parse.ts and the per-instance audit
+// concurrency cap (6), so the cap does not need to drop below what real large pages need.
 const PAGE_MAX_MB = 8;
+
+/** Shared by the page fetch and the three side-file fetches of one audit: one DNS cache, one cancel signal. */
+type Net = Pick<SafeFetchOptions, "resolver" | "requestImpl" | "signal" | "lookupCache">;
+
+export interface RunAuditOptions {
+  /** Aborts the audit's network work, e.g. when the client disconnects. */
+  signal?: AbortSignal;
+  /** Test seams: keep tests offline. */
+  resolver?: Resolver;
+  requestImpl?: RequestImpl;
+}
 
 const looksLikeHtml = (text: string) => {
   const head = text.slice(0, 600).trimStart().toLowerCase();
@@ -115,9 +128,9 @@ interface RobotsFetch {
   warning?: string;
 }
 
-async function fetchRobots(origin: string): Promise<RobotsFetch> {
+async function fetchRobots(origin: string, net: Net): Promise<RobotsFetch> {
   try {
-    const res = await safeFetch(`${origin}/robots.txt`, { timeoutMs: 6000, maxBytes: 512 * 1024, accept: "text/plain,*/*;q=0.5" });
+    const res = await safeFetch(`${origin}/robots.txt`, { timeoutMs: 6000, maxBytes: 512 * 1024, accept: "text/plain,*/*;q=0.5", ...net });
     if (res.status === 200) {
       if (looksLikeHtml(res.text)) {
         return {
@@ -149,27 +162,27 @@ async function fetchRobots(origin: string): Promise<RobotsFetch> {
   }
 }
 
-async function fetchLlms(origin: string): Promise<LlmsInfo> {
+async function fetchLlms(origin: string, net: Net): Promise<LlmsInfo> {
   try {
-    const res = await safeFetch(`${origin}/llms.txt`, { timeoutMs: 5000, maxBytes: 256 * 1024, accept: "text/plain,text/markdown,*/*;q=0.5" });
-    if (res.status !== 200) return { found: false, httpStatus: res.status, note: `${origin}/llms.txt returned ${res.status}` };
+    const res = await safeFetch(`${origin}/llms.txt`, { timeoutMs: 5000, maxBytes: 256 * 1024, accept: "text/plain,text/markdown,*/*;q=0.5", ...net });
+    if (res.status !== 200) return { found: false, httpStatus: res.status, note: `/llms.txt returned ${res.status}` };
     const type = (res.headers["content-type"] ?? "").toLowerCase();
     if (type.includes("html") || looksLikeHtml(res.text)) {
-      return { found: false, httpStatus: 200, note: `${origin}/llms.txt returned a web page (probably the site's 404 page), not a text file` };
+      return { found: false, httpStatus: 200, note: `/llms.txt returned a web page (probably the site's 404 page), not a text file` };
     }
-    if (!res.text.trim()) return { found: false, httpStatus: 200, note: `${origin}/llms.txt is empty` };
+    if (!res.text.trim()) return { found: false, httpStatus: 200, note: "/llms.txt is empty" };
     return { found: true, httpStatus: 200 };
   } catch (err) {
     return { found: false, note: `Could not fetch llms.txt (${err instanceof FetchError ? err.message : "request failed"})` };
   }
 }
 
-async function probeSitemap(origin: string): Promise<SitemapInfo> {
+async function probeSitemap(origin: string, net: Net): Promise<SitemapInfo> {
   const candidates: { path: "/sitemap.xml" | "/sitemap_index.xml" }[] = [{ path: "/sitemap.xml" }, { path: "/sitemap_index.xml" }];
   const results = await Promise.all(
     candidates.map(async (c): Promise<SitemapInfo> => {
       try {
-        const res: SafeFetchResult = await safeFetch(`${origin}${c.path}`, { timeoutMs: 5000, maxBytes: 128 * 1024, accept: "application/xml,text/xml,*/*;q=0.5" });
+        const res: SafeFetchResult = await safeFetch(`${origin}${c.path}`, { timeoutMs: 5000, maxBytes: 128 * 1024, accept: "application/xml,text/xml,*/*;q=0.5", ...net });
         const head = res.text.slice(0, 400).trimStart().toLowerCase();
         const xmlish = (res.headers["content-type"] ?? "").toLowerCase().includes("xml") || head.startsWith("<?xml") || head.startsWith("<urlset") || head.startsWith("<sitemapindex");
         if (res.status === 200 && xmlish && !looksLikeHtml(res.text)) return { found: true, url: res.finalUrl, via: c.path };
@@ -182,7 +195,7 @@ async function probeSitemap(origin: string): Promise<SitemapInfo> {
   return results.find((r) => r.found) ?? { found: false };
 }
 
-export async function runAudit(inputUrl: string): Promise<AuditReport> {
+export async function runAudit(inputUrl: string, opts: RunAuditOptions = {}): Promise<AuditReport> {
   const startedAt = Date.now();
   let url: URL;
   try {
@@ -192,9 +205,10 @@ export async function runAudit(inputUrl: string): Promise<AuditReport> {
     throw err;
   }
 
+  const net: Net = { resolver: opts.resolver, requestImpl: opts.requestImpl, signal: opts.signal, lookupCache: createLookupCache() };
   let page: SafeFetchResult;
   try {
-    page = await safeFetch(url, { maxBytes: PAGE_MAX_MB * 1024 * 1024 });
+    page = await safeFetch(url, { maxBytes: PAGE_MAX_MB * 1024 * 1024, ...net });
   } catch (err) {
     if (err instanceof FetchError) throw new AuditFailure(err.code, err.message);
     throw new AuditFailure("fetch_failed", "We could not fetch that page.");
@@ -206,11 +220,12 @@ export async function runAudit(inputUrl: string): Promise<AuditReport> {
   const type = (page.headers["content-type"] ?? "").toLowerCase();
   const htmlType = type.includes("html") || type.includes("xhtml");
   if (!htmlType && !(type === "" && looksLikeHtml(page.text)) && !(type.startsWith("text/plain") && looksLikeHtml(page.text))) {
-    throw new AuditFailure("not_html", `That address returned ${type ? type.split(";")[0] : "something that is not a web page"}, not an HTML page. Enter the address of a web page.`);
+    // Fixed wording: the content type is chosen by the target site, so it is not echoed back.
+    throw new AuditFailure("not_html", "That address did not return an HTML page. Enter the address of a web page.");
   }
 
   const origin = new URL(page.finalUrl).origin;
-  const [robotsR, llmsR, sitemapR] = await Promise.allSettled([fetchRobots(origin), fetchLlms(origin), probeSitemap(origin)]);
+  const [robotsR, llmsR, sitemapR] = await Promise.allSettled([fetchRobots(origin, net), fetchLlms(origin, net), probeSitemap(origin, net)]);
 
   const warnings: string[] = [];
   let robots: RobotsInfo;

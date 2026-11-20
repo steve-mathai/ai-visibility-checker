@@ -48,8 +48,28 @@ export function truncate(s: string, max: number): string {
   return s.length <= max ? s : s.slice(0, Math.max(0, max - 1)).trimEnd() + "…";
 }
 
+/** Escape text for use inside HTML text or a quoted attribute. Page-derived strings must go through this. */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/** Serialise JSON for a <script> block so no string can close the tag or break the paste. */
+export function safeJsonForScript(data: unknown): string {
+  return JSON.stringify(data, null, 2)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function jsonLdSnippet(data: unknown): string {
-  return `<script type="application/ld+json">\n${JSON.stringify(data, null, 2)}\n</script>`;
+  return `<script type="application/ld+json">\n${safeJsonForScript(data)}\n</script>`;
 }
 
 /** Brand name to use in snippets: detected business name, else the site's hostname. */

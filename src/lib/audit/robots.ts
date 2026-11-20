@@ -25,6 +25,11 @@ export interface RobotsDecision {
   rule: string;
 }
 
+/** Bounds on page-controlled input: a hostile robots.txt must not make matching expensive. */
+const MAX_RULES_PER_GROUP = 1000;
+const MAX_PATTERN_LENGTH = 512;
+const MAX_RULE_TEXT = 200;
+
 export function parseRobots(text: string): ParsedRobots {
   const groups: RobotsGroup[] = [];
   const sitemaps: string[] = [];
@@ -49,7 +54,9 @@ export function parseRobots(text: string): ParsedRobots {
       lastWasAgent = true;
     } else if (key === "allow" || key === "disallow") {
       lastWasAgent = false;
-      if (current) current.rules.push({ type: key, pattern: value });
+      if (current && current.rules.length < MAX_RULES_PER_GROUP) {
+        current.rules.push({ type: key, pattern: value.slice(0, MAX_PATTERN_LENGTH) });
+      }
     } else if (key === "sitemap") {
       if (value) sitemaps.push(value);
       // sitemap lines do not belong to a group and do not end one
@@ -61,18 +68,37 @@ export function parseRobots(text: string): ParsedRobots {
   return { groups, sitemaps };
 }
 
-function patternToRegExp(pattern: string): RegExp {
-  let anchored = false;
+/**
+ * Linear-ish wildcard matcher for RFC 9309 patterns: "*" matches any run of characters, a trailing "$"
+ * anchors the end, and without "$" the pattern only has to match a prefix of the path.
+ * Single-pass with one backtrack point (the most recent "*"), so it is O(pattern x path) at worst
+ * and cannot blow up the way a generated regular expression can.
+ */
+export function matchesPattern(pattern: string, path: string): boolean {
   let p = pattern;
-  if (p.endsWith("$")) {
-    anchored = true;
-    p = p.slice(0, -1);
+  const anchored = p.endsWith("$");
+  if (anchored) p = p.slice(0, -1);
+  let i = 0;
+  let j = 0;
+  let star = -1;
+  let mark = 0;
+  for (;;) {
+    if (i === p.length) {
+      if (!anchored || j === path.length) return true;
+    } else if (p[i] === "*") {
+      star = i++;
+      mark = j;
+      continue;
+    } else if (j < path.length && p[i] === path[j]) {
+      i++;
+      j++;
+      continue;
+    }
+    if (star < 0 || mark >= path.length) return false;
+    mark++;
+    j = mark;
+    i = star + 1;
   }
-  const body = p
-    .split("*")
-    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-    .join(".*");
-  return new RegExp("^" + body + (anchored ? "$" : ""));
 }
 
 function groupsFor(parsed: ParsedRobots, token: string): RobotsGroup[] {
@@ -104,7 +130,7 @@ export function evaluate(
     for (const rule of group.rules) {
       // An empty Disallow means "nothing is disallowed"; an empty Allow adds nothing.
       if (rule.pattern === "") continue;
-      if (!patternToRegExp(rule.pattern).test(target)) continue;
+      if (!matchesPattern(rule.pattern, target)) continue;
       if (
         !best ||
         rule.pattern.length > best.pattern.length ||
@@ -118,6 +144,6 @@ export function evaluate(
   if (!best) return none;
   return {
     allowed: best.type === "allow",
-    rule: `${best.type === "allow" ? "Allow" : "Disallow"}: ${best.pattern}`,
+    rule: `${best.type === "allow" ? "Allow" : "Disallow"}: ${best.pattern}`.slice(0, MAX_RULE_TEXT),
   };
 }

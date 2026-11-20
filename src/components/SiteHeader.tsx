@@ -1,5 +1,6 @@
 import Link from "next/link";
 import styles from "./landing/landing.module.css";
+import { BrandLogo } from "./Brand";
 import { SITE } from "./site";
 
 /** Landing nav: a plain bar, not sticky. The hero holds the action. */
@@ -8,7 +9,7 @@ export function SiteHeader() {
     <header className={styles.frame}>
       <div className={styles.nav}>
         <Link href="/" className={styles.wordmark} translate="no">
-          {SITE.name}
+          <BrandLogo />
         </Link>
         <nav aria-label="Primary">
           <ul className={styles.navLinks}>

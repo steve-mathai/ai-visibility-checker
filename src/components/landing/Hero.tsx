@@ -17,7 +17,7 @@ export function Hero() {
             </span>{" "}
             <span className={styles.line}>
               <span className={styles.lineIn} style={vars({ "--i": 1 })}>
-                cite your page?
+                <span className={styles.cite}>cite</span> your page?
               </span>
             </span>
           </h1>

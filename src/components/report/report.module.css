@@ -25,8 +25,10 @@
     --line-strong: #8f9a9f;
     --fg: #000000;
     --muted: #2b3438;
-    --accent: #004b53;
-    --accent-soft: #e3f1f3;
+    --accent: #14232b;
+    --accent-hover: #14232b;
+    --accent-fg: #ffffff;
+    --hl-fg: #000000;
     --pass: #0b5a30;
     --pass-soft: #e4f3ea;
     --warn: #6b3f00;

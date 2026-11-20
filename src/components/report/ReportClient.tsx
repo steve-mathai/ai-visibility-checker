@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { SAMPLE_REPORT, SAMPLE_SUMMARY } from "@/dev/sample-report";
+import { WORST_REPORT, WORST_SUMMARY } from "@/dev/worst-case";
 import type { AuditReport } from "@/lib/audit/types";
 import { requestAudit } from "../api";
 import { UrlForm } from "../UrlForm";
@@ -91,6 +92,11 @@ function MissingUrl() {
 /** Reads the query string; must be rendered inside a <Suspense> boundary. */
 export function ReportClient() {
   const params = useSearchParams();
+
+  // Dev-only worst-case data for stress-testing the layout; removed from production builds.
+  if (process.env.NODE_ENV !== "production" && params.get("demo") === "worst") {
+    return <ReportView report={WORST_REPORT} sampleSummary={WORST_SUMMARY} />;
+  }
 
   if (params.get("demo") === "1") {
     return <ReportView report={SAMPLE_REPORT} sampleSummary={SAMPLE_SUMMARY} />;

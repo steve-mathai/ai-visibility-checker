@@ -1,12 +1,10 @@
 import type { CheckResult } from "../types";
 import type { AuditContext } from "../context";
-import { brandName, check, fix, truncate } from "./util";
+import { brandName, check, escapeHtml, fix, truncate } from "./util";
 
 const CAT = "meta" as const;
 
-function esc(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-}
+const esc = escapeHtml;
 
 const SECOND_LEVEL = new Set(["co", "com", "org", "net", "gov", "ac", "edu", "ltd", "plc"]);
 
@@ -117,7 +115,7 @@ function canonical(ctx: AuditContext): CheckResult {
   const max = 3;
   const href = ctx.page.canonicalHref;
   const final = ctx.page.url;
-  const tag = `<link rel="canonical" href="${final.origin}${final.pathname}">`;
+  const tag = `<link rel="canonical" href="${esc(final.origin + final.pathname)}">`;
   if (!href) {
     return check(CAT, "canonical", "Canonical URL", max, "warn", 0, "The page does not declare a canonical (preferred) URL.", {
       fix: fix(
@@ -146,7 +144,7 @@ function canonical(ctx: AuditContext): CheckResult {
         "Replace the relative address with the full one, including https:// and the domain.",
         "low",
         "quick",
-        `<link rel="canonical" href="${abs.toString()}">`,
+        `<link rel="canonical" href="${esc(abs.toString())}">`,
       ),
     });
   }
@@ -193,7 +191,7 @@ function openGraph(ctx: AuditContext): CheckResult {
   const lines: string[] = [];
   if (!have.title) lines.push(`<meta property="og:title" content="${esc(f.title ?? brandName(ctx))}">`);
   if (!have.description) lines.push(`<meta property="og:description" content="${esc(f.metaDescription ?? suggestDescription(ctx))}">`);
-  if (!have.image) lines.push(`<meta property="og:image" content="${ctx.page.firstImage ?? `${ctx.page.url.origin}/og-image.jpg`}">`);
+  if (!have.image) lines.push(`<meta property="og:image" content="${esc(ctx.page.firstImage ?? `${ctx.page.url.origin}/og-image.jpg`)}">`);
   const missing = [!have.title && "og:title", !have.description && "og:description", !have.image && "og:image"].filter(Boolean).join(", ");
   return check(CAT, "open-graph", "Open Graph tags", max, "warn", count, `Open Graph tags are missing: ${missing}.`, {
     evidence,

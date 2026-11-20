@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "./Brand";
 import { vars } from "./landing/css";
 import styles from "./landing/landing.module.css";
 import { SITE } from "./site";
@@ -73,7 +74,8 @@ export function SiteFooter() {
           style={vars({ "--i": 3 })}
         >
           <p className={styles.ftMark} translate="no">
-            {SITE.name}
+            <BrandMark on="fg" className={styles.ftMarkIcon} />
+            <span>{SITE.name}</span>
           </p>
         </div>
 
@@ -98,6 +100,7 @@ export function SiteFooter() {
           </svg>
         </a>
       </div>
+      <p className={styles.copy}>{SITE.copyright}</p>
     </footer>
   );
 }

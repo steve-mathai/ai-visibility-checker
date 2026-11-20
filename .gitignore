@@ -50,3 +50,6 @@ next-env.d.ts
 /.taste-skill/**/*.png
 /.taste-skill/**/*.jpg
 
+# Secrets guard (secrets audit 2026-11-20)
+*.key
+*.local.md

@@ -18,8 +18,22 @@ export interface ParsedLink {
   text: string;
 }
 
+/** Hard caps on page-controlled collections, so a hostile page cannot make later checks expensive. */
+export const LIMITS = {
+  sections: 1000,
+  headings: 2000,
+  links: 5000,
+  phones: 200,
+  types: 200,
+  jsonLdBlocks: 50,
+  /** Above this many elements the clone-based text extraction is skipped. */
+  elements: 150_000,
+} as const;
+
 export interface ParsedPage {
   $: CheerioAPI;
+  /** Non-fatal notes from parsing (oversized page, truncated collections). */
+  parseWarnings: string[];
   url: URL;
   facts: PageFacts;
   /** Body text minus script/style/noscript/svg/nav/footer/header, whitespace-collapsed. */
@@ -73,11 +87,68 @@ function countWords(text: string): number {
 const BLOCK_SELECTOR =
   "p,div,li,ul,ol,h1,h2,h3,h4,h5,h6,br,tr,td,th,table,section,article,main,aside,blockquote,pre,dd,dt,dl,figure,figcaption,summary,details,form,hr";
 
-function extractText($: CheerioAPI, removeSelector: string): string {
-  const body = $("body").clone();
-  body.find(removeSelector).remove();
-  body.find(BLOCK_SELECTOR).after(" ");
-  return clean(body.text());
+interface WalkNode {
+  type: string;
+  data?: string;
+  name?: string;
+  attribs?: Record<string, string>;
+  children?: WalkNode[];
+}
+
+const SKIP_ALWAYS = new Set(["script", "style", "noscript", "svg", "template"]);
+const SKIP_CHROME = new Set(["nav", "footer", "header"]);
+const BLOCK_TAGS = new Set(BLOCK_SELECTOR.split(","));
+
+/**
+ * Both text variants in ONE linear walk of <body>, with no clone and no DOM mutation (inserting a node
+ * after every block element is quadratic for a body with tens of thousands of siblings).
+ * fullText skips non-content tags and [hidden]; visibleText also skips nav/footer/header.
+ * A space follows every block element, as the old clone-and-insert approach produced.
+ */
+function extractTexts($: CheerioAPI): { visibleText: string; fullText: string } {
+  const root = $("body").get(0) as unknown as WalkNode | undefined;
+  const full: string[] = [];
+  const visible: string[] = [];
+  if (root) {
+    // Stack entries: [node, insideChrome, exiting]
+    const stack: [WalkNode, boolean, boolean][] = [[root, false, false]];
+    while (stack.length) {
+      const [node, chrome, exiting] = stack.pop() as [WalkNode, boolean, boolean];
+      if (node.type === "text") {
+        const t = node.data ?? "";
+        full.push(t);
+        if (!chrome) visible.push(t);
+        continue;
+      }
+      const isEl = node.type === "tag" || node.type === "script" || node.type === "style";
+      if (!isEl && node !== root) continue; // comments, directives, cdata
+      const name = (node.name ?? "").toLowerCase();
+      if (exiting) {
+        if (BLOCK_TAGS.has(name)) {
+          full.push(" ");
+          if (!chrome) visible.push(" ");
+        }
+        continue;
+      }
+      if (node !== root && (SKIP_ALWAYS.has(name) || (node.attribs && "hidden" in node.attribs))) continue;
+      const inChrome = chrome || (node !== root && SKIP_CHROME.has(name));
+      if (node !== root) stack.push([node, chrome, true]);
+      const kids = node.children ?? [];
+      for (let i = kids.length - 1; i >= 0; i--) stack.push([kids[i], inChrome, false]);
+    }
+  }
+  return { visibleText: clean(visible.join("")), fullText: clean(full.join("")) };
+}
+
+/** Cheap fallback for huge DOMs: text of content-bearing tags only, no clone. */
+function extractTextsLight($: CheerioAPI): { visibleText: string; fullText: string } {
+  const parts: string[] = [];
+  $("p,li,h1,h2,h3,h4,h5,h6").each((i, el) => {
+    if (i >= 5000) return false;
+    parts.push($(el).text());
+  });
+  const text = clean(parts.join(" "));
+  return { visibleText: text, fullText: text };
 }
 
 const SOCIAL_RE =
@@ -220,14 +291,25 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
   const lang = ($("html").attr("lang") ?? "").trim() || null;
 
   // ---- text ----
-  const REMOVE_ALWAYS = "script,style,noscript,svg,template,[hidden]";
-  const visibleText = extractText($, `${REMOVE_ALWAYS},nav,footer,header`);
-  const fullText = extractText($, REMOVE_ALWAYS);
+  const parseWarnings: string[] = [];
+  let texts: { visibleText: string; fullText: string };
+  if ($("*").length > LIMITS.elements) {
+    parseWarnings.push("The page was too large to analyse fully, so some checks may undercount.");
+    texts = extractTextsLight($);
+  } else {
+    texts = extractTexts($);
+  }
+  const { visibleText, fullText } = texts;
+  let capped = false;
   const wordCount = countWords(visibleText);
 
   // ---- headings ----
   const headings: { level: number; text: string }[] = [];
   $("h1,h2,h3,h4,h5,h6").each((_, el) => {
+    if (headings.length >= LIMITS.headings) {
+      capped = true;
+      return false;
+    }
     const text = clean($(el).text());
     if (!text) return;
     const level = Number((el as { tagName: string }).tagName.slice(1));
@@ -238,6 +320,10 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
   // ---- sections (answer-first analysis) ----
   const sections: Section[] = [];
   $("h2,h3").each((_, el) => {
+    if (sections.length >= LIMITS.sections) {
+      capped = true;
+      return false;
+    }
     const text = clean($(el).text());
     if (!text) return;
     if ($(el).closest("nav,footer,header,aside").length) return;
@@ -259,6 +345,10 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
   let invalid = 0;
   const errors: string[] = [];
   $('script[type="application/ld+json" i]').each((_, el) => {
+    if (blocks >= LIMITS.jsonLdBlocks) {
+      capped = true;
+      return false;
+    }
     blocks++;
     const raw = ($(el).html() ?? "").trim();
     try {
@@ -276,15 +366,29 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
   }
 
   // ---- microdata ----
-  const microdataTypes: string[] = [];
+  const microdataSet = new Set<string>();
   $("[itemscope][itemtype]").each((_, el) => {
+    if (microdataSet.size >= LIMITS.types) {
+      capped = true;
+      return false;
+    }
     const t = shortType($(el).attr("itemtype") ?? "");
-    if (t && !microdataTypes.includes(t)) microdataTypes.push(t);
+    if (t) microdataSet.add(t);
   });
+  const microdataTypes = [...microdataSet];
 
-  const schemaTypes: string[] = [];
-  for (const n of topNodes) for (const t of typesOf(n)) if (!schemaTypes.includes(t)) schemaTypes.push(t);
-  for (const t of microdataTypes) if (!schemaTypes.includes(t)) schemaTypes.push(t);
+  const schemaSet = new Set<string>();
+  for (const n of topNodes) {
+    for (const t of typesOf(n)) {
+      if (schemaSet.size >= LIMITS.types) {
+        capped = true;
+        break;
+      }
+      schemaSet.add(t);
+    }
+  }
+  for (const t of microdataTypes) if (schemaSet.size < LIMITS.types) schemaSet.add(t);
+  const schemaTypes = [...schemaSet];
 
   // ---- links ----
   let base = url;
@@ -300,10 +404,20 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
   const telLinks: string[] = [];
   const socialSet = new Set<string>();
   $("a[href]").each((_, el) => {
+    if (links.length >= LIMITS.links) {
+      capped = true;
+      return false;
+    }
     const href = ($(el).attr("href") ?? "").trim();
     if (!href || href.startsWith("#") || /^javascript:/i.test(href)) return;
     if (/^tel:/i.test(href)) {
-      telLinks.push(decodeURIComponent(href.slice(4)));
+      if (telLinks.length < LIMITS.phones) {
+        try {
+          telLinks.push(decodeURIComponent(href.slice(4)));
+        } catch {
+          telLinks.push(href.slice(4)); // malformed % escape: keep the raw text rather than fail the audit
+        }
+      }
       return;
     }
     if (/^mailto:/i.test(href)) return;
@@ -338,11 +452,16 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
     .some((el) => /(enable|requires?|need).{0,40}javascript|javascript.{0,40}(required|disabled|enabled)/i.test($(el).text()));
 
   // ---- contact signals ----
-  const textPhones: string[] = [];
+  const phoneSet = new Set<string>();
   for (const m of fullText.matchAll(PHONE_RE)) {
+    if (phoneSet.size >= LIMITS.phones) {
+      capped = true;
+      break;
+    }
     const d = digitsOnly(m[0]);
-    if (d.length >= 10 && d.length <= 13 && !textPhones.includes(m[0].trim())) textPhones.push(m[0].trim());
+    if (d.length >= 10 && d.length <= 13) phoneSet.add(m[0].trim());
   }
+  const textPhones = [...phoneSet];
   const hasAddressElement = $("address, [itemprop='streetAddress'], [itemprop='address']").length > 0;
 
   // ---- logo / image candidates ----
@@ -431,8 +550,11 @@ export function parsePage(html: string, finalUrl: string, statusCode: number): P
     lang,
   };
 
+  if (capped) parseWarnings.push("The page has an unusually large number of elements, so only the first part of some lists was analysed.");
+
   return {
     $,
+    parseWarnings,
     url,
     facts,
     visibleText,

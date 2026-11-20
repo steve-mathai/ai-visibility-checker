@@ -7,7 +7,7 @@
 */
 
 .page {
-  --m: max(20px, 4vw);
+  --m: max(20px, 4vw, env(safe-area-inset-left), env(safe-area-inset-right));
   --gap: clamp(96px, 12vw, 176px);
   --nav-h: 72px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -107,6 +107,7 @@
 .wordmark {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   min-height: 44px;
   font-size: var(--s-body);
   font-weight: 500;
@@ -201,6 +202,14 @@
 }
 .lineIn {
   display: block;
+}
+/* The citation highlight: a lime slab behind ink, slanted like the slash in the logo. */
+.cite {
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  background: var(--hl);
+  color: var(--hl-fg);
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .page[data-js] .lineIn {
@@ -417,8 +426,8 @@
   color: var(--warn);
 }
 .pillAccent {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--hl);
+  color: var(--hl-fg);
 }
 .pillQuiet {
   background: var(--surface);
@@ -499,8 +508,8 @@
   }
 }
 .tileHead {
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--hl);
+  color: var(--hl-fg);
   min-height: 160px;
 }
 @media (min-width: 900px) {
@@ -516,7 +525,7 @@
     background: var(--surface-2);
   }
   .tileHead:hover {
-    background: var(--accent);
+    background: var(--hl);
   }
   a.tile:hover .host {
     text-decoration-color: currentColor;
@@ -526,7 +535,7 @@
   background: var(--surface-2);
 }
 .tileHead:active {
-  background: var(--accent);
+  background: var(--hl);
 }
 .tile:focus-visible {
   outline-offset: 2px;
@@ -633,7 +642,7 @@
 .swField {
   position: absolute;
   inset: 0;
-  background: var(--accent);
+  background: var(--stage-off);
   opacity: 0;
   transition: opacity 240ms var(--ease-out);
 }
@@ -667,15 +676,16 @@
   z-index: 1;
   left: var(--m);
   bottom: 5svh;
-  font-size: 48vw;
+  /* Track is 2.6em wide: size it so the whole switch fits between the margins. */
+  font-size: calc((100vw - 2 * var(--m)) / 2.6);
   line-height: 1;
 }
 @media (min-width: 700px) {
   .swCtl {
     left: auto;
-    right: -0.52em;
+    right: max(var(--m), calc((100% - 1280px) / 2));
     bottom: 7svh;
-    font-size: clamp(64px, 28.5svh, 300px);
+    font-size: clamp(64px, min(28.5svh, 34vw), 300px);
   }
 }
 .swBtn {
@@ -690,6 +700,7 @@
   border: 0;
   cursor: pointer;
   border-radius: 0.7em;
+  touch-action: manipulation;
 }
 .swBtn:focus-visible {
   outline: 3px solid var(--stage-fg);
@@ -733,7 +744,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--hl);
   opacity: 0;
   transition: opacity 200ms ease;
 }
@@ -990,57 +1001,145 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.pillRow {
+.fixHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.fixHead .miniTitle {
+  margin: 0;
+}
+.fixCount {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.fixRanked {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fixItem {
+  border-top: 1px solid var(--line); /* taste-skill-ignore: inside a data-ui fragment */
+}
+.fixH {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.fixBtn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.fixBtn:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
+}
+.rank {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fixItem:first-child .rank {
+  background: var(--hl);
+  color: var(--hl-fg);
+}
+.fixMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fixTitle {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.fixMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
 }
-.fixHow {
-  max-width: 60ch;
-  margin: 0;
+.chev {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  color: var(--muted);
+  transition: transform 200ms var(--ease-out);
+}
+.chevShut {
+  transform: rotate(-90deg);
+}
+/* On a phone the stage is short: two rows fit with the first one open. */
+@media (max-width: 899px) {
+  .fixItem:nth-child(n + 3) {
+    display: none;
+  }
+}
+.fixBody {
+  padding: 0 0 12px 32px;
+}
+.fixBody[hidden] {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .fixBtn:hover .fixTitle {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
 }
 .snip {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding: 10px 10px 10px 14px;
+  gap: 10px;
+  padding: 8px 8px 8px 12px;
   background: var(--surface);
   border-radius: 8px;
 }
 .snipText {
   flex: 1;
   min-width: 0;
+  margin: 0;
   font-size: 14px;
   line-height: 1.4;
 }
 .snipFrom {
   color: var(--muted);
 }
-.copyBtn {
-  flex: none;
-  min-height: 44px;
-  padding: 0 14px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fg);
-  background: var(--raised);
-  border: 1px solid var(--line-strong); /* taste-skill-ignore: inside a data-ui fragment */
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    transform 100ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .copyBtn:hover {
-    background: var(--surface-2);
-  }
-}
-.copyBtn:active {
-  transform: translateY(1px);
+.snipCode {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* taste-skill-ignore: a real code snippet */
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 /* ---------- command list ---------- */
@@ -1094,8 +1193,8 @@
   transition: background-color 150ms ease;
 }
 .cmdRow[aria-selected="true"] {
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--hl);
+  color: var(--hl-fg);
 }
 .cmdMain {
   display: flex;
@@ -1136,8 +1235,8 @@
   }
 }
 .cmdRow[aria-selected="true"] .chip {
-  background: color-mix(in srgb, var(--accent-fg) 22%, transparent);
-  color: var(--accent-fg);
+  background: color-mix(in srgb, var(--hl-fg) 14%, transparent);
+  color: var(--hl-fg);
 }
 /* Rendered only for the selected row; it rises in as the selection moves. */
 @media (prefers-reduced-motion: no-preference) {
@@ -1170,8 +1269,8 @@
   /* 88svh left a half-screen of empty field above the copy; 64svh keeps the field without the void. */
   min-height: max(64svh, 520px);
   display: flex;
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--hl);
+  color: var(--hl-fg);
 }
 .closeGrid {
   display: grid;
@@ -1256,7 +1355,7 @@
 
 .foot {
   margin-top: clamp(64px, 8vw, 112px);
-  padding-bottom: var(--m);
+  padding-bottom: max(var(--m), env(safe-area-inset-bottom));
 }
 .tiles {
   display: grid;
@@ -1313,8 +1412,8 @@
   grid-column: 1 / -1;
   order: 2;
   min-height: 160px;
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--hl);
+  color: var(--hl-fg);
   text-decoration: none;
   transition: background-color 180ms ease;
 }
@@ -1388,19 +1487,33 @@
     text-decoration-color: currentColor;
   }
   .ftCheck:hover {
-    background: var(--accent-hover);
+    background: color-mix(in srgb, var(--hl) 82%, var(--canvas));
   }
   .ftCheck:hover .arrow {
     transform: translateX(8px);
   }
 }
 .ftCheck:active {
-  background: var(--accent-hover);
+  background: color-mix(in srgb, var(--hl) 82%, var(--canvas));
 }
 .ftLeadLink {
   font-size: var(--s-lead);
 }
+.copy {
+  margin: 16px 0 0;
+  font-size: var(--s-small);
+  color: var(--muted);
+}
+.ftMarkIcon {
+  flex: none;
+  width: 0.78em;
+  height: 0.78em;
+}
 .ftMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
   margin: 0;
   font-size: 12cqi;
   font-weight: 500;

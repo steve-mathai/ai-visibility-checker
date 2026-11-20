@@ -2,6 +2,13 @@
 
 Facts, decisions and lessons that aren't obvious from the code. Newest entries at the top of each section. Update this file whenever something surprising happens.
 
+## Current state (7 Nov 2026): hardening + rebrand done, UNCOMMITTED
+
+- Work was done for the parent "Project" session. The owner approves commits; do not commit, push or deploy without that.
+- **Security audit:** run dir `C:\Users\Steve\security-audit-skill\ai-visibility-checker\run-1\` (REPORT.md, NEEDS-VALIDATION.md, findings.json). All 7 findings are fixed with tests; the summary is in `docs/security-audit.md`.
+- **Logo:** "[/]" (direction B) in `brand/`; the alternatives are in `brand/alternatives/`. Before and after screenshots are in `brand/screens/`; they were taken on the dev server, so the black "N" circle in them is Next's dev indicator, not the app.
+- **Gates:** `npx eslint src scripts` takes about 8 minutes on this machine and is not hung; wait for it. If PowerShell fails with 0x800705af, the machine is out of memory; run `node node_modules/...` from Git Bash instead.
+
 ## Current state (26 Oct 2026)
 
 - v1 built and pushed to https://github.com/steve-mathai/ai-visibility-checker (public). Not deployed.

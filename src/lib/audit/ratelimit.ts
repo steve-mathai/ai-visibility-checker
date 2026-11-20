@@ -1,27 +1,35 @@
-// Best-effort in-memory rate limiter. On serverless hosts each instance has its own
-// memory, so this only slows down casual abuse; it is not a security boundary.
+import { getStore, type Store } from "../store";
 
-const buckets = new Map<string, number[]>();
-
+/**
+ * Rate limiting on the store adapter (shared across instances when Upstash/Vercel KV is configured,
+ * otherwise a bounded in-memory LRU per instance). Fixed window, see store/types.ts.
+ *
+ * Trust model for the client key. Forwarding headers are client-controlled unless a proxy we trust
+ * overwrites them, so they are used in this order:
+ *  1. `x-vercel-forwarded-for`: set by the Vercel edge and not forwarded from the client.
+ *  2. the LAST value of `x-forwarded-for`, only when TRUST_PROXY=1 (the last entry is the one added by
+ *     the nearest proxy; earlier entries are whatever the client sent).
+ *  3. `x-real-ip` (platform-set on common hosts; ignored when TRUST_PROXY=1 already matched).
+ *  4. one shared "anonymous" bucket, so inventing header values never creates fresh buckets.
+ */
 export function clientKey(request: Request, scope: string): string {
-  const fwd = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const ip = fwd || request.headers.get("x-real-ip") || "unknown";
-  return `${scope}:${ip}`;
+  const h = request.headers;
+  let ip = h.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+  if (!ip && process.env.TRUST_PROXY === "1") {
+    const parts = h.get("x-forwarded-for")?.split(",");
+    ip = parts?.[parts.length - 1]?.trim();
+  }
+  if (!ip) ip = h.get("x-real-ip")?.trim();
+  return `${scope}:${(ip || "anonymous").slice(0, 64)}`;
 }
 
-export function rateLimit(key: string, limit: number, windowMs: number): { ok: boolean; retryAfterSec: number } {
-  const now = Date.now();
-  const recent = (buckets.get(key) ?? []).filter((t) => now - t < windowMs);
-  if (recent.length >= limit) {
-    buckets.set(key, recent);
-    return { ok: false, retryAfterSec: Math.max(1, Math.ceil((recent[0] + windowMs - now) / 1000)) };
-  }
-  recent.push(now);
-  buckets.set(key, recent);
-  if (buckets.size > 5000) {
-    for (const [k, v] of buckets) {
-      if (!v.some((t) => now - t < windowMs)) buckets.delete(k);
-    }
-  }
+export async function rateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+  store: Store = getStore(),
+): Promise<{ ok: boolean; retryAfterSec: number }> {
+  const count = await store.incrementWindow(`rl:${key}`, windowMs);
+  if (count > limit) return { ok: false, retryAfterSec: Math.max(1, Math.ceil(windowMs / 1000)) };
   return { ok: true, retryAfterSec: 0 };
 }

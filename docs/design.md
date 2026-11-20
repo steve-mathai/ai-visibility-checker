@@ -4,16 +4,19 @@ name: AI Visibility Checker
 direction: "The product performs" (tasteskill v2, seed 955256396, sector ai-product)
 app-style: "Framed sheet / Generated report" (tasteskill v2 app draw, seed 161146234, kind report)
 type: Clash Grotesk 400/500/600 (Fontshare), one family for everything; system monospace only inside real code
-colors:
-  canvas: "#f7f9fa"     # page ground          dark #0e171b
-  surface: "#ecf0f2"    # one tone step         dark #16242a
-  surface-2: "#e2e8eb"  # hover / second step   dark #1d2e35
-  raised: "#ffffff"     # report sheet, cards   dark #132026
-  line: "#dde4e7"       # app fragments only    dark #263a42
-  fg: "#1f3038"         # slate ink             dark #e4ecee
-  muted: "#5d6b72"      # secondary ink         dark #9db0b7
-  accent: "#0d7480"     # teal, the action      dark #4fb8c4
-  stage: "#1f3038"      # dark field for the switch section
+colors:                 # "Ink, frost and citation lime" (the [/] logo); dark values after "dark"
+  canvas: "#f4f7f8"     # frost, page ground    dark #14232b (ink)
+  surface: "#e9eff1"    # one tone step         dark #1c303a
+  surface-2: "#dde6e9"  # hover / second step   dark #243b47
+  raised: "#ffffff"     # report sheet, cards   dark #192b34
+  line: "#d6dfe3"       # app fragments only    dark #2d4552
+  fg: "#14232b"         # ink                   dark #f4f7f8
+  muted: "#4e5e66"      # secondary ink         dark #a5b6bd
+  accent: "#14232b"     # the action: ink fill, frost text   dark #d9f24e (lime fill, ink text)
+  hl: "#d9f24e"         # citation lime, FILL only, always with hl-fg ink on top (both schemes)
+  hl-fg: "#14232b"
+  stage: "#14232b"      # field for the switch section       dark #f4f7f8
+  stage-off: "#2d4553"  # the switch field when blocked      dark #dce5e8
   pass: "#1d7a4c"
   warn: "#93590a"
   fail: "#b42318"
@@ -115,7 +118,7 @@ Full-bleed field in `accent`, 88svh. Left (columns 1–5), anchored to the botto
 Right (columns 7–11), vertically centred: the product's check dialog at true size (`data-ui`, 440px wide, `raised` fill, 12px radius, the dialog's own shadow allowed): title "Check a page", the URL field prefilled with an editable example "yourbrand.com", and the primary button "Run the check" (full width, 52px). Submitting goes to `/report?url=…`.
 
 ### 7. Footer: tiles
-Two rows of filled tiles, 8px gaps. Upper row (220px): statement tile (cols 1–4): "A free AEO and GEO check, built by Steve Mathew." at lead step, and at small step at the bottom "Scores estimate citability from on-page signals." · navigation tile (cols 5–8): How it works, Sample report, What it checks · source tile (cols 9–12): "The code is open." and the GitHub link at lead step. Lower row (320px): ink tile (cols 1–8, `fg` fill, canvas ink) with the wordmark large and centred; accent tile (cols 9–12) "Check a page" at lead step top-left and a 4px-stroke arrow bottom-right; the whole tile links to the hero field (#check).
+Two rows of filled tiles, 8px gaps. Upper row (220px): statement tile (cols 1–4): "A free AEO and GEO check, built by Steve Mathai Mathew." at lead step, and at small step at the bottom "Scores estimate citability from on-page signals." · navigation tile (cols 5–8): How it works, Sample report, What it checks · source tile (cols 9–12): "The code is open." and the GitHub link at lead step. Lower row (320px): ink tile (cols 1–8, `fg` fill, canvas ink) with the wordmark large and centred; accent tile (cols 9–12) "Check a page" at lead step top-left and a 4px-stroke arrow bottom-right; the whole tile links to the hero field (#check).
 
 ### Motion (landing)
 - Signature: masked line reveal on the h1, 900ms strong ease-out, second line 110ms later, then explainer and form fade-rise together.
@@ -137,7 +140,7 @@ No sidebar. A 48px viewer bar with a 1px bottom rule, `canvas` ground: wordmark 
 7. **Crawler table** in a card: Bot, Operator, Purpose, Access (status pill), Deciding rule (inline code). Header row 13px/600 muted over a 1px rule, rows 37px over lighter rules, training bots' "Blocked" in the info pill, not fail.
 8. **AI summary card**: loading skeleton without looping pulse (a static tone block plus "Writing a plain-English summary…"), then summary, top actions (`<ol>`), rewrite rows current → suggested with Copy. Disabled state: one quiet line.
 9. **Lead capture**: a quiet card at the end, "Re-check this page every month", email field (`type="email"`, `autoComplete="email"`, `spellCheck={false}`), button "Remind me monthly", and the honest demo note.
-10. **Footer line**: the honesty sentence and "Built by Steve Mathew" at 13px.
+10. **Footer line**: the honesty sentence and "Built by Steve Mathai Mathew" at 13px.
 
 Loading: the four steps as rows in a card with a determinate feel (done ✓ / current spinner / waiting), `aria-live="polite"`, text ends with "…". Errors: a card with the message, the next step, and the right actions per code (no "Try again" for invalid_url and blocked_host; offer "Check a different page").
 
@@ -146,6 +149,10 @@ Print (`@media print`): hide the viewer bar, buttons, lead capture and a disable
 ## Copy rules
 
 Plain, specific, calm. No exclamation marks, emoji, hype, em dashes. Sentence case for headings and buttons (house voice wins over the guideline's Title Case). Numerals for counts. Loading text ends with "…". Buttons say what they do ("Check this page", "Copy share link", "Remind me monthly").
+
+## Changelog
+
+**7 Nov 2026, rebrand to the [/] mark.** Palette re-tuned to the logo within the same direction. Teal (`#0d7480`, dark `#4fb8c4`) is retired: it no longer had a role the logo colours could not take. Slate `#1f3038` and canvas `#f7f9fa` become ink `#14232b` and frost `#f4f7f8`; dark mode uses ink itself as the ground. New token pair `hl` / `hl-fg` (citation lime on ink): lime is a fill only, never text or a thin line on a light ground. Where it appears: the highlighter slab behind "cite" in the h1, score-chip ground inside the score ring, "high impact" pills, the proof heading tile, the switch thumb, the selected command row, the closing field and the footer "Check a page" tile, selection colour, and a halo beside the focus ring (light mode). `accent` now means the action only: ink fill on frost in light, lime fill on ink in dark; links, the active tab line and the focus ring take it too (foreground lime appears only on dark grounds). The switch field flips between `stage` and `stage-off` (a lifted ink) instead of to teal. `accent-soft` is removed. Contrast pairs held: ink on frost 14.9:1, ink on lime 12.8:1, frost on stage-off 9.3:1, muted `#4e5e66` on frost 6.3:1 and on surface-2 5.3:1 (dark: `#a5b6bd` on ink 7.7:1 and on surface-2 5.6:1), pass on pass-soft 4.6:1 (lowest pair). All computed from the hex values. Brand wiring: inline `BrandMark`/`BrandLogo` (src/components/Brand.tsx) in both headers and the footer ink tile, `app/icon.svg`, `app/apple-icon.png`, `app/manifest.ts`, default and per-report share images (`/api/og`), footer copyright line.
 
 ## Build notes (v2 redesign, 26 Oct 2026)
 

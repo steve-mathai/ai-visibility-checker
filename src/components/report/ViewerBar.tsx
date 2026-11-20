@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "../Brand";
 import { CopyButton } from "../CopyButton";
 import { Column } from "./Column";
 
@@ -10,9 +11,10 @@ export function ViewerBar({ showShare }: { showShare: boolean }) {
         <Link
           href="/"
           translate="no"
-          className="min-w-0 truncate rounded text-sm font-semibold tracking-tight sm:text-[15px]"
+          aria-label="AI Visibility Checker home"
+          className="flex min-w-0 items-center gap-2.5 rounded font-semibold tracking-tight"
         >
-          AI Visibility Checker
+          <BrandLogo markClass="size-6" textClass="truncate text-[13px] sm:text-[15px]" />
         </Link>
         <div className="flex shrink-0 items-center gap-2">
           {showShare && (

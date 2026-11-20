@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { categoryLabel } from "../categories";
+import { ImpactBadge, EffortBadge } from "../Badges";
+import { CopyButton } from "../CopyButton";
+import { ChevronIcon } from "../Icons";
 import {
   CATEGORY_ROWS,
-  EFFORT,
-  IMPACT,
+  FIX_ROWS,
+  REPORT,
   SAMPLE_HOST,
-  TOP_FIX,
   TOP_FIX_EXAMPLE,
   toneOf,
 } from "./data";
@@ -35,32 +36,6 @@ const BAR_CLASS = {
   fail: styles.barFail,
 } as const;
 
-function CopyButton({ text }: { text: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <>
-      <button
-        type="button"
-        className={styles.copyBtn}
-        onClick={() => {
-          navigator.clipboard
-            ?.writeText(text)
-            .then(() => {
-              setDone(true);
-              window.setTimeout(() => setDone(false), 1800);
-            })
-            .catch(() => {});
-        }}
-      >
-        {done ? "Copied" : "Copy"}
-      </button>
-      <span className="sr-only" role="status">
-        {done ? "Copied to clipboard" : ""}
-      </span>
-    </>
-  );
-}
-
 /**
  * Pinned fragment, changing state. The stage is sticky; three statements
  * scroll past it and an IntersectionObserver moves data-step. No scroll
@@ -69,6 +44,7 @@ function CopyButton({ text }: { text: string }) {
  */
 export function HowItWorks() {
   const [step, setStep] = useState(0);
+  const [open, setOpen] = useState(0);
   const refs = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
@@ -165,30 +141,76 @@ export function HowItWorks() {
           </div>
         </div>
 
-        {/* C: the top fix */}
+        {/* C: the ranked fix list, as the report shows it */}
         <div className={`${styles.layer} ${styles.layerC}`}>
           <div className={styles.mini}>
-            <div className={styles.pillRow}>
-              <span className={`${styles.pill} ${styles.pillAccent}`}>
-                {IMPACT[TOP_FIX.impact]}
-              </span>
-              <span className={`${styles.pill} ${styles.pillQuiet}`}>
-                {EFFORT[TOP_FIX.effort]}
-              </span>
-              <span className={`${styles.pill} ${styles.pillQuiet}`}>
-                {categoryLabel(TOP_FIX.category)}
-              </span>
+            <div className={styles.fixHead}>
+              <p className={styles.miniTitle}>Fix these first</p>
+              <p className={styles.fixCount}>{REPORT.fixes.length} fixes</p>
             </div>
-            <p className={styles.miniTitle}>{TOP_FIX.title}</p>
-            <p className={styles.fixHow}>{TOP_FIX.why}</p>
-            <div className={styles.snip}>
-              <p className={styles.snipText}>
-                <span className={styles.snipFrom}>{TOP_FIX_EXAMPLE.from}</span>
-                <br />
-                {TOP_FIX_EXAMPLE.to}
-              </p>
-              <CopyButton text={TOP_FIX_EXAMPLE.to} />
-            </div>
+            <ol role="list" className={styles.fixRanked}>
+              {FIX_ROWS.map((fix, i) => {
+                const isOpen = open === i;
+                const bodyId = `how-fix-${i}`;
+                return (
+                  <li key={fix.checkId} className={styles.fixItem}>
+                    <h3 className={styles.fixH}>
+                      <button
+                        type="button"
+                        className={styles.fixBtn}
+                        aria-expanded={isOpen}
+                        aria-controls={bodyId}
+                        onClick={() => setOpen(isOpen ? -1 : i)}
+                      >
+                        <span className={styles.rank} aria-hidden="true">
+                          {i + 1}
+                        </span>
+                        <span className={styles.fixMain}>
+                          <span className={styles.fixTitle}>{fix.title}</span>
+                          <span className={styles.fixMeta}>
+                            <ImpactBadge impact={fix.impact} />
+                            <EffortBadge effort={fix.effort} />
+                          </span>
+                        </span>
+                        <ChevronIcon
+                          className={`${styles.chev} ${isOpen ? "" : styles.chevShut}`}
+                        />
+                      </button>
+                    </h3>
+                    <div id={bodyId} className={styles.fixBody} hidden={!isOpen}>
+                      {i === 0 && (
+                        <div className={styles.snip}>
+                          <p className={styles.snipText}>
+                            <span className={styles.snipFrom}>
+                              {TOP_FIX_EXAMPLE.from}
+                            </span>
+                            <br />
+                            {TOP_FIX_EXAMPLE.to}
+                          </p>
+                          <CopyButton
+                            text={TOP_FIX_EXAMPLE.to}
+                            ariaLabel={`Copy snippet for: ${fix.title}`}
+                            compact
+                          />
+                        </div>
+                      )}
+                      {i !== 0 && fix.snippet && (
+                        <div className={styles.snip}>
+                          <pre className={styles.snipCode} translate="no">
+                            <code>{fix.snippet}</code>
+                          </pre>
+                          <CopyButton
+                            text={fix.snippet}
+                            ariaLabel={`Copy snippet for: ${fix.title}`}
+                            compact
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
         </div>
       </div>
