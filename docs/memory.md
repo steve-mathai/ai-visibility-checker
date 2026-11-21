@@ -6,11 +6,22 @@ Facts, decisions and lessons that aren't obvious from the code. Newest entries a
 
 Following `Build\FINISH-TODAY.md`:
 
-- Upgrading Next.js 16.4.3 to 16.4.6 (security release), which waits on the machine-wide install lock.
-- Two builder agents are working in parallel:
-  - analytics wiring (no-op unless `NEXT_PUBLIC_ANALYTICS` is set);
-  - Phase 4 wider audits (`/compare` and `/site`).
-- After both: gates, a production smoke check, then a local commit. No push, no deploy.
+- **Done and reviewed:**
+  - Analytics wiring (`src/lib/analytics.ts`), a no-op unless `NEXT_PUBLIC_ANALYTICS` is set.
+  - Phase 4 wider audits: `/compare` and `/site`, plus the `/api/compare` and `/api/site` routes.
+  - `ViewerBar` is now a client component, so its `onCopied` callback can cross from server pages.
+  - `/compare` and `/site` send `Referrer-Policy: no-referrer`, like `/report`.
+  - vitest: 165/165.
+- Next.js is now 16.4.6, along with `eslint-config-next` (the security release).
+- The copyright line now lives in `ReportFrame`, so every report, compare and site state shows it once.
+- The `/site` input no longer collapses on phones.
+- **Gates:** tsc 0, vitest 165/165, eslint 0 and `next build` OK.
+- **Production smoke check:**
+  - headers OK, and `/report`, `/compare` and `/site` send `no-referrer`;
+  - the private-IP guard works on `/api/compare`;
+  - at 375 px there is no horizontal scroll and no console errors.
+- **Committed locally; no push, no deploy.**
+- **Not verified:** the filled-in compare table and the site report at 375 px. They need live audits of outside sites, which are off-limits for testing. A canned-data CDP script for this is in the session scratchpad (`wide-shot.mjs`).
 
 ## Waiting on owner
 

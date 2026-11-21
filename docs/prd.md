@@ -29,7 +29,7 @@ Search is turning into answers. When an engine replies with a paragraph and thre
 **Non-goals (v1)**
 
 - Measuring whether a page is actually cited today (needs live queries against the engines; see phases.md, Phase 3).
-- Crawling a whole site.
+- Crawling a whole site. (The whole-site audit samples up to 50 pages from the sitemap; it does not follow links.)
 - Accounts, saved history, billing.
 - Ranking or traffic data.
 
@@ -69,6 +69,8 @@ Search is turning into answers. When an engine replies with a paragraph and thre
 | FR-10 | Optional AI summary and rewrites via one Claude call; degrades to a note without a key or on any error | Done (untested with a live key) |
 | FR-11 | Clear error states: invalid URL, private host, fetch failed (with status), not HTML, rate limited | Done |
 | FR-12 | Email capture component after the report | Demo only |
+| FR-13 | Compare up to four URLs side by side: score, grade, five categories, answer-bot access, top three fixes; shareable `/compare?u=...` | Done |
+| FR-14 | Whole-site audit: sample 20 to 50 same-site pages from the sitemap, report template-level patterns and the five most common fixes; `/site?url=...`; stops at 55 s with a partial result | Done |
 
 ## 7. Non-functional requirements
 

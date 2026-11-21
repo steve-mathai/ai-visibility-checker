@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { SITE } from "../site";
+import { Column } from "./Column";
 import { ViewerBar } from "./ViewerBar";
 import styles from "./report.module.css";
 
@@ -19,6 +21,10 @@ export function ReportFrame({
       <style>{PRINT_RULES}</style>
       <ViewerBar showShare={showShare} />
       {children}
+      {/* One copyright line for every report, compare and site state, including forms and errors. */}
+      <Column className="pb-10">
+        <p className="text-[13px] text-muted">{SITE.copyright}</p>
+      </Column>
     </div>
   );
 }

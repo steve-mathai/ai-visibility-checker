@@ -102,7 +102,7 @@ The report page follows a different rule set, because it's a screen you work in 
 
 ## How it's built
 
-- **Next.js 16 (App Router), TypeScript, Tailwind CSS 4.** No database. The landing page and report shell are static. Two API routes do the work.
+- **Next.js 16 (App Router), TypeScript, Tailwind CSS 4.** No database. The landing page and report shell are static. Four API routes do the work (audit, summary, compare, site).
 - **`src/lib/audit/`** is the engine. `fetch.ts` fetches the page, robots.txt, llms.txt and the sitemap in parallel. `parse.ts` reads the HTML with cheerio. Each area has its own file in `checks/`, and `score.ts` applies weights, caps and fix ranking. `types.ts` is the contract between the engine and the UI.
 - **`POST /api/audit`** returns the full report, usually in 1 to 8 seconds. **`POST /api/summary`** returns the AI summary or a reason it's off.
 - **Fetching arbitrary URLs safely.** A tool that fetches any address you give it can be pointed at private networks or cloud metadata endpoints. `fetch.ts` only allows http and https on ports 80 and 443, resolves DNS and refuses private, loopback, link-local and metadata addresses, re-checks every redirect, and stops at 8 MB and 10 seconds.
@@ -179,9 +179,15 @@ Off by default: with nothing set, no script loads and nothing is sent. To turn i
 
 Five events are recorded: `audit_started`, `audit_finished`, `fix_snippet_copied`, `share_link_copied` and `email_submitted`. Audit events carry only the audited hostname, score and grade. No full URLs, query strings or email addresses are ever sent. The Content-Security-Policy allows `plausible.io` only when Plausible is the chosen provider.
 
+## Comparing sites and auditing a whole site
+
+- **Compare** (`/compare?u=a.com&u=b.com`, up to four sites): overall score and grade, the five category scores, which answer bots are allowed, and the top three fixes per site, side by side. The address is the shareable state, like `/report`. One site failing to load never fails the others.
+- **Whole-site audit** (`/site?url=example.com`): reads robots.txt and the sitemap (including one level of sitemap index), picks 20 to 50 pages from the same site spread across page types, audits them four at a time, and reports which checks fail on which page types plus the five most common fixes. It stops at 55 seconds and returns what it has, marked as partial. robots.txt and llms.txt are fetched once per run.
+- Both use the same pinned, SSRF-guarded fetcher as a single audit. Site audits are limited to 2 per 10 minutes per connection, and a compare of N sites costs N audits.
+
 ## Limits worth knowing
 
-- It audits one page, not the whole site.
+- A single audit reads one page. The whole-site audit samples up to 50 pages from the sitemap; it is a sample, not a crawl, and compressed (.gz) sitemap files are skipped.
 - It reads robots.txt as itself. A few sites serve different rules to real crawlers, or block unknown visitors outright (the 403s above).
 - It measures whether a page *can* be cited, not whether it *is* cited. Those are different questions, and the second needs real queries against the engines.
 - The weights are my judgement, informed by published crawler documentation and what's known about how answer engines pick sources. They aren't measured against citation data yet.
@@ -192,9 +198,9 @@ In order, with the reason for each:
 
 1. **Real citation tracking.** Run 20 to 30 buyer questions for a brand through the Perplexity and OpenAI APIs each week and record who gets cited. This closes the biggest gap (can be cited vs is cited) and is the feature a team would pay for, so it's where the free tool turns into a product.
 2. **A working monthly re-check.** Connect the email box to a CRM and a scheduled job that re-runs the audit and emails when the score drops, for example after someone adds a robots.txt rule. This is the retention loop the lead magnet is meant to feed.
-3. **Competitor comparison.** Audit your page and three competitors' side by side. Marketers act faster on "they have FAQ schema and we don't" than on an absolute score.
+3. **Competitor comparison.** Built (21 Nov 2026), see above.
 4. **A share image for each report.** An Open Graph card with the score and grade, so a shared link shows the result in the preview. Cheap, and it helps the tool spread.
-5. **Multi-page crawl.** Sample 20 to 50 pages from the sitemap and report patterns ("31 of 40 blog posts have no author"), because most of these problems are template problems.
+5. **Multi-page audit.** Built (21 Nov 2026), see above. Still to add: a per-page-type drill-down and saved history.
 6. **Validate the weights.** Once citation tracking exists, check which signals actually predict being cited and re-weight. Until then the weights are informed judgement, and the README should keep saying so.
 
 ---

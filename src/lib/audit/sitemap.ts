@@ -35,8 +35,8 @@ const decodeXml = (s: string) =>
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'");
 
-// The character class excludes "<", so this cannot backtrack across tags: linear in the input size.
-const LOC = /<loc>\s*([^<]{1,2048}?)\s*<\/loc>/gi;
+// Each alternative is length-bounded and stops at its own closing marker, so matching stays linear in the input size.
+const LOC = /<loc>\s*(<!\[CDATA\[(?:(?!\]\]>)[\s\S]){1,2048}\]\]>|[^<]{1,2048}?)\s*<\/loc>/gi;
 
 /** Pull <loc> entries out of a sitemap or sitemap index. Regex rather than a DOM so a huge file stays cheap. */
 export function parseSitemapXml(xml: string, limit: number): ParsedSitemap {

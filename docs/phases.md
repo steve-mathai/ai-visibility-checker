@@ -51,11 +51,14 @@ Goal: close the gap between "can be cited" and "is cited".
 - Show share of citations against named competitors over time.
 - Exit: tracking runs for 3 brands for 4 weeks with stable, explainable numbers.
 
-## Phase 4: Wider audits
+## Phase 4: Wider audits (done, 21 Nov 2026)
 
 - Competitor comparison: up to four URLs side by side.
 - Multi-page audit: sample 20 to 50 URLs from the sitemap and report template-level patterns.
+- Built: `POST /api/compare` and `/compare`, `POST /api/site` and `/site` (see `docs/architecture.md`, "Wider audits"). Entry points are links on the report page and in the landing nav.
 - Exit: a 40-page audit finishes in under 60 seconds and its patterns are verified by hand on one site.
+  - Met in tests: `wide.test.ts` runs a 40-page audit against injected fakes with 1 s of simulated latency per page and finishes well under 60 s (the test logs the wall time). The route stops itself at 55 s and returns a partial result.
+  - Not done: the by-hand check of the patterns on one real site. No audit was run against an outside website while building this phase, so the owner or a later run should do that once.
 
 ## Phase 5: Validate the weights
 

@@ -135,7 +135,8 @@ describe("sitemap discovery guards", () => {
       [`${ORIGIN}/big.xml`]: urlset(many),
       [`${ORIGIN}/idx.xml`]: index([...children, `${ORIGIN}/archive.xml.gz`]),
       [`${ORIGIN}/nested.xml`]: index([`${ORIGIN}/deeper.xml`]),
-      [`${ORIGIN}/deeper.xml`]: urlset([`${ORIGIN}/deep`]),
+      [`${ORIGIN}/deeper.xml`]: index([`${ORIGIN}/deepest.xml`]),
+      [`${ORIGIN}/deepest.xml`]: urlset([`${ORIGIN}/deep`]),
     };
     for (const c of children) routes[c] = urlset([`${ORIGIN}/c/${c.length}`]);
 
@@ -151,6 +152,7 @@ describe("sitemap discovery guards", () => {
     const nested = fakeNetwork({ routes });
     const result = await discoverSitemapUrls(new URL(ORIGIN), [`${ORIGIN}/nested.xml`], { resolver, requestImpl: nested.requestImpl });
     expect(result.urls).toEqual([]);
+    expect(nested.requested.some((u) => u.endsWith("/deepest.xml"))).toBe(false);
 
     const huge = fakeNetwork({ routes: { [`${ORIGIN}/sitemap.xml`]: urlset(Array.from({ length: 80_000 }, (_, i) => `${ORIGIN}/long/path/number/${i}`)) } });
     const truncated = await discoverSitemapUrls(new URL(ORIGIN), [], { resolver, requestImpl: huge.requestImpl });

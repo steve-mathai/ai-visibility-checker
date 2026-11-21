@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { AiSummary, AuditReport, CategoryScore } from "@/lib/audit/types";
 import { requestSummary } from "../api";
@@ -122,6 +123,16 @@ export function ReportView({
               Sample report for a made-up business. No real page was fetched.
             </p>
           )}
+          {!isSample && (
+            <p className="mt-3 flex flex-wrap gap-2 print:hidden">
+              <Link href={`/compare?u=${encodeURIComponent(report.url)}`} className="btn btn-secondary btn-sm">
+                Compare with competitors
+              </Link>
+              <Link href={`/site?url=${encodeURIComponent(report.url)}`} className="btn btn-secondary btn-sm">
+                Audit the whole site
+              </Link>
+            </p>
+          )}
           {noteCount > 0 && (
             <details className="mt-3 text-[13px] text-muted">
               <summary className="cursor-pointer select-none rounded">
@@ -174,7 +185,6 @@ export function ReportView({
           </p>
           <p className="shrink-0">Built by {SITE.author}</p>
         </footer>
-        <p className="mt-2 text-[13px] text-muted">{SITE.copyright}</p>
       </Column>
     </ReportFrame>
   );

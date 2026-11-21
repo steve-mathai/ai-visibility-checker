@@ -1,3 +1,7 @@
+"use client";
+
+// Client component: it hands an onCopied callback to CopyButton, and ReportFrame (which renders it)
+// is also used from server pages, where a function prop could not cross the boundary.
 import Link from "next/link";
 import { BrandLogo } from "../Brand";
 import { track } from "@/lib/analytics";

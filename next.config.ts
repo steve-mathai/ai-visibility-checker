@@ -43,10 +43,13 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   async headers() {
     return [
-      // Every route except /report gets the standard referrer policy; /report sends none, because the
-      // address of a report can carry the audited URL.
-      { source: "/((?!report).*)", headers: securityHeaders("strict-origin-when-cross-origin") },
-      { source: "/report", headers: securityHeaders("no-referrer") },
+      // Every route gets the full header set. /report, /compare and /site then send no referrer at all,
+      // because their addresses carry the audited URLs; for the same header key, the later rule wins.
+      { source: "/:path*", headers: securityHeaders("strict-origin-when-cross-origin") },
+      ...["/report", "/compare", "/site"].map((source) => ({
+        source,
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      })),
     ];
   },
   partialPrefetching: true,

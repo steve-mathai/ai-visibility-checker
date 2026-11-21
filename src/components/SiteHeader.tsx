@@ -19,6 +19,11 @@ export function SiteHeader() {
               </a>
             </li>
             <li>
+              <Link href="/compare" className={styles.navLink}>
+                Compare sites
+              </Link>
+            </li>
+            <li>
               <Link href="/report?demo=1" className={styles.navLink}>
                 Sample report
               </Link>

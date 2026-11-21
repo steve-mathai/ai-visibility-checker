@@ -140,3 +140,19 @@ Vercel, zero config. Routes set `maxDuration` 30 and 60. Optional env var `ANTHR
 4. If it changes the landing page's "What we check" claims, update `src/components/categories.ts`.
 5. Run `npx tsx scripts/generate-sample.ts` so the demo matches.
 6. Re-run the real-site script and note any surprises in memory.md.
+
+## Wider audits (Phase 4)
+
+Two more routes reuse the single-audit engine. The shared types are in `src/lib/audit/wide-types.ts` (no runtime imports, like `types.ts`).
+
+- **`POST /api/compare`** `{urls: [2 to 4]}` returns `{results: [{url, ok: true, report} | {url, ok: false, error, code}]}` in input order. `compare.ts` runs `runAudit` per address through `mapPool`, so one failure becomes an error entry and never fails the rest. Duplicate addresses are rejected. Page: `/compare?u=a&u=b` (`src/components/compare/`), one table with a column per site, scrolling inside its own frame on a phone.
+- **`POST /api/site`** `{url}` returns a `SiteReport` (`multi.ts`). Page: `/site?url=...` (`src/components/site/`).
+  1. robots.txt and llms.txt are fetched once, with the existing `fetchRobots` and `fetchLlms` (exported from `index.ts`).
+  2. `sitemap.ts` reads the `Sitemap:` lines, else `/sitemap.xml` and `/sitemap_index.xml`, and follows one level of index. Caps: 2 MB per file, 6 files, 5,000 addresses, 1,024 characters per address. Only addresses on the audited site are fetched or kept ("same site" means the same hostname once a leading `www.` is removed; there is no public-suffix list, so subdomains count as other sites). `.gz` sitemap files are skipped because the fetch layer inflates `Content-Encoding` but not a gzip file.
+  3. `sample.ts` picks up to 40 pages: the entered address first, then round-robin across page types (`/` home, `/*` single-segment pages, `/<segment>/*` for the rest), evenly spaced inside a type. It drops duplicates, other hosts, non-HTML extensions and anything the fetcher would refuse.
+  4. Pages are fetched with `fetchHtmlPage` (the single-audit page fetch, extracted from `runAudit`) at 4 in parallel, 3 MB and 8 s each, sharing one DNS `LookupCache`, and analysed with `analyse()` against the shared robots/llms/sitemap data.
+  5. `summarise()` builds the per-page-type scores, per-check patterns (failing and warning counts by page type) and the 5 most common fixes (by pages affected, then summed priority).
+  6. A 55 s deadline (`AbortSignal.timeout`) cancels in-flight fetches and skips pages not started; the result is returned with `partial: true` and a note. If no page finished, the route answers with a plain error.
+- **Security.** Every request, sitemap or page, goes through `safeFetch` (SSRF guard, pinned DNS, redirect re-validation). The routes copy `/api/audit`'s checks via `request.ts`: JSON content type, 4 KB body cap, zod validation, fixed error text. A page that redirects to another site is skipped.
+- **Limits.** (`/api/compare` sets `maxDuration` 40.) Compare costs N units of the single-audit budget (30 per 10 minutes). Site audits have their own budget of 2 per 10 minutes. Both take slots from the shared `auditSlots` through `slots.ts` `acquireWideSlots`, which never uses the last 2 of the 6 slots, so single audits cannot be starved; a site audit holds up to 4.
+- **Tests.** `__tests__/wide.test.ts` (sitemap parsing and guards, sampling, site audit, compare) and `wide-routes.test.ts` (request checks, budgets, slot reserve). The 40-page exit test uses injected `requestImpl` and `resolver` fakes with simulated latency; no real site is contacted.
