@@ -35,6 +35,7 @@ export function CopyButton({
   ariaLabel,
   className = "btn btn-secondary btn-sm",
   compact = false,
+  onCopied,
 }: {
   /** The text to copy, or a function evaluated at click time. */
   text: string | (() => string);
@@ -44,6 +45,8 @@ export function CopyButton({
   className?: string;
   /** Below the sm breakpoint show only the icon; the label stays as the accessible name. */
   compact?: boolean;
+  /** Called after a successful copy. */
+  onCopied?: () => void;
 }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,6 +62,7 @@ export function CopyButton({
     const value = typeof text === "function" ? text() : text;
     const ok = await writeToClipboard(value);
     setState(ok ? "copied" : "failed");
+    if (ok) onCopied?.();
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setState("idle"), 2000);
   }

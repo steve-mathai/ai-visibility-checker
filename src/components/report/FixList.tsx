@@ -2,6 +2,7 @@
 
 import type { PrioritisedFix } from "@/lib/audit/types";
 import { EffortBadge, ImpactBadge } from "../Badges";
+import { track } from "@/lib/analytics";
 import { CopyButton } from "../CopyButton";
 import { ChevronIcon } from "../Icons";
 import { FIXES_ID, fixDomId, shortLabel } from "./labels";
@@ -99,6 +100,7 @@ function FixRow({
               </span>
               <CopyButton
                 text={fix.snippet}
+                onCopied={() => track("fix_snippet_copied")}
                 ariaLabel={`Copy snippet for: ${fix.title}`}
               />
             </div>

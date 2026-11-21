@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type SyntheticEvent } from "react";
+import { track } from "@/lib/analytics";
 
 /**
  * Lead-magnet call to action.
@@ -45,6 +46,8 @@ export function LeadCapture({
       }
       setBusy(false);
     }
+    // No props: the address and the audited URL are never sent to analytics.
+    track("email_submitted");
     setDone(true);
   }
 

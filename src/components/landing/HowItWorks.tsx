@@ -153,7 +153,7 @@ export function HowItWorks() {
                 const isOpen = open === i;
                 const bodyId = `how-fix-${i}`;
                 return (
-                  <li key={fix.checkId} className={styles.fixItem}>
+                  <li key={fix.checkId} className={styles.hwItem}>
                     <h3 className={styles.fixH}>
                       <button
                         type="button"
@@ -166,7 +166,7 @@ export function HowItWorks() {
                           {i + 1}
                         </span>
                         <span className={styles.fixMain}>
-                          <span className={styles.fixTitle}>{fix.title}</span>
+                          <span className={styles.hwTitle}>{fix.title}</span>
                           <span className={styles.fixMeta}>
                             <ImpactBadge impact={fix.impact} />
                             <EffortBadge effort={fix.effort} />

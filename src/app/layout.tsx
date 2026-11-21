@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SITE } from "@/components/site";
+import { Analytics } from "@/components/Analytics";
 import "./globals.css";
 
 const OG_IMAGE = {
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="flex flex-1 flex-col">
           {children}
         </main>
+        <Analytics />
       </body>
     </html>
   );

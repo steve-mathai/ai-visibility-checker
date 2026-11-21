@@ -118,6 +118,10 @@ The posted report is validated with zod and size-capped before it's used, becaus
 
 `next.config.ts` enables `cacheComponents`. The landing page and `/report` are prerendered static. `ReportClient` is the only component that reads `useSearchParams`, and it sits inside `<Suspense>` so the rest of the route stays static. The API routes are POST handlers, which are never cached, so they don't need (and can't have) a `dynamic` export.
 
+## Analytics
+
+`src/lib/analytics.ts` exports `track(event, props?)`. The provider comes from `NEXT_PUBLIC_ANALYTICS` (`plausible`, `vercel`, or unset for a no-op; in development an unset provider logs with `console.debug`). `src/components/Analytics.tsx`, rendered in `layout.tsx`, loads the provider script only when the variable is set. `next.config.ts` adds `https://plausible.io` to `script-src` and `connect-src` only when Plausible is chosen at build time; the Vercel script is same-origin. `track` never throws and strips emails, URLs with query strings and fragments, and keys named like email. Events fire from `ReportClient` (audit started and finished), `CopyButton`'s `onCopied` (snippet and share link, from `FixList` and `ViewerBar`) and `LeadCapture` (email submitted, no props).
+
 ## Testing
 
 - `npm test` runs 47 vitest tests with no network: robots.txt parsing edge cases, SSRF blocking (including redirect re-validation and the size cap), and full `analyse()` runs on fixture pages (strong, weak, JS shell, noindex, blocked crawlers, truncated page).

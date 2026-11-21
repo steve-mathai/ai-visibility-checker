@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "../Brand";
+import { track } from "@/lib/analytics";
 import { CopyButton } from "../CopyButton";
 import { Column } from "./Column";
 
@@ -23,6 +24,7 @@ export function ViewerBar({ showShare }: { showShare: boolean }) {
               label="Copy share link"
               copiedLabel="Link copied"
               compact
+              onCopied={() => track("share_link_copied")}
             />
           )}
           <Link href="/#check" className="btn btn-secondary btn-sm">

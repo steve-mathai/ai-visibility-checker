@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { SAMPLE_REPORT, SAMPLE_SUMMARY } from "@/dev/sample-report";
 import { WORST_REPORT, WORST_SUMMARY } from "@/dev/worst-case";
+import { track } from "@/lib/analytics";
 import type { AuditReport } from "@/lib/audit/types";
 import { requestAudit } from "../api";
 import { UrlForm } from "../UrlForm";
@@ -25,8 +26,17 @@ function AuditRun({ url, onRetry }: { url: string; onRetry: () => void }) {
 
   useEffect(() => {
     const controller = new AbortController();
+    const host = hostOf(url);
+    track("audit_started", { host });
     requestAudit(url, controller.signal).then((result) => {
       if (controller.signal.aborted) return;
+      if (result.ok) {
+        track("audit_finished", {
+          host,
+          score: result.report.overallScore,
+          grade: result.report.grade,
+        });
+      }
       setState(
         result.ok
           ? { status: "done", report: result.report }

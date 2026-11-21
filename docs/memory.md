@@ -2,11 +2,34 @@
 
 Facts, decisions and lessons that aren't obvious from the code. Newest entries at the top of each section. Update this file whenever something surprising happens.
 
+## Where I stopped (21 Nov 2026, finish-today run)
+
+Following `Build\FINISH-TODAY.md`:
+
+- Upgrading Next.js 16.4.3 to 16.4.6 (security release), which waits on the machine-wide install lock.
+- Two builder agents are working in parallel:
+  - analytics wiring (no-op unless `NEXT_PUBLIC_ANALYTICS` is set);
+  - Phase 4 wider audits (`/compare` and `/site`).
+- After both: gates, a production smoke check, then a local commit. No push, no deploy.
+
+## Waiting on owner
+
+1. **Domain and deploy:** which domain should the app use, and may I deploy it to Vercel?
+2. **Analytics provider:** should analytics use Plausible or Vercel Analytics? The code supports both and stays off until `NEXT_PUBLIC_ANALYTICS` is set.
+3. **Anthropic key:** may I use an Anthropic API key, with a spend cap you set, to test the AI summary end to end?
+4. **Production secrets:** will you set `SUMMARY_SIGNING_SECRET`, the KV/Upstash vars, `TRUST_PROXY=1` and `SUMMARY_DAILY_LIMIT` in Vercel?
+5. **Snapshot commit:** should local commit `9c4ffc4` "chore: local snapshot of work in progress (20 Nov 2026)" keep its message, be reworded or be squashed before the first push?
+6. **Email or CRM tool:** which email or CRM tool should run the monthly re-check sign-up (Phase 2)? It also needs a small Postgres, for example Neon.
+7. **Citation tracking:** which answer-engine APIs and budget should Phase 3 use? Phase 5 depends on its data.
+
 ## Current state (7 Nov 2026): hardening + rebrand done, UNCOMMITTED
 
 - Work was done for the parent "Project" session. The owner approves commits; do not commit, push or deploy without that.
 - **Security audit:** run dir `C:\Users\Steve\security-audit-skill\ai-visibility-checker\run-1\` (REPORT.md, NEEDS-VALIDATION.md, findings.json). All 7 findings are fixed with tests; the summary is in `docs/security-audit.md`.
-- **Logo:** "[/]" (direction B) in `brand/`; the alternatives are in `brand/alternatives/`. Before and after screenshots are in `brand/screens/`; they were taken on the dev server, so the black "N" circle in them is Next's dev indicator, not the app.
+- **Logo:** "[/]" (direction B) in `brand/`; the alternatives are in `brand/alternatives/`. Before and after screenshots are in `brand/screens/`. The `after-*` set was re-taken on 21 Nov 2026 on the production build (`next build` + `next start -p 3217`), so there is no dev indicator in them.
+- **Snapshot commit:** `9c4ffc4` "chore: local snapshot of work in progress (20 Nov 2026)" holds most of this work. It was made locally at 23:48 on 20 Nov by something outside this session. It is not pushed, and `main` is 3 ahead of `origin/main`. The owner should decide whether to keep it or reword it before any push.
+- **Landing fixes (21 Nov 2026):** "How a check runs" step 3 now shows the report's ranked "Fix these first" list (data comes from `REPORT.fixes`). The "One line decides it" switch now fits inside the page margins at every width. The author is "Steve Mathai Mathew" everywhere; the git identity in `docs/rules.md` stays as it is.
+- **"How a check runs" looks gappy in stitched screenshots only.** The stage is sticky, so a scroll-and-stitch capture leaves blank bands. On a real 375px phone, the pinned stage and the current step's text are on screen together.
 - **Gates:** `npx eslint src scripts` takes about 8 minutes on this machine and is not hung; wait for it. If PowerShell fails with 0x800705af, the machine is out of memory; run `node node_modules/...` from Git Bash instead.
 
 ## Current state (26 Oct 2026)

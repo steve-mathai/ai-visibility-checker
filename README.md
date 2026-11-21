@@ -170,6 +170,15 @@ Notes for production:
 - The routes set `maxDuration` to 30 seconds (audit) and 60 (summary), which fit Vercel's default limits.
 - The rate limit (30 audits and 12 summaries per IP every 10 minutes) is kept in memory, so on serverless it's per instance and only slows casual abuse. Before sharing the link widely, I'd move it to Vercel KV or Upstash and cache summaries per URL, so a popular share link doesn't trigger a paid model call on every view.
 
+## Analytics
+
+Off by default: with nothing set, no script loads and nothing is sent. To turn it on, set these at build time:
+
+- `NEXT_PUBLIC_ANALYTICS=plausible` and `NEXT_PUBLIC_ANALYTICS_DOMAIN=your-domain.com`, or
+- `NEXT_PUBLIC_ANALYTICS=vercel` (needs Vercel Web Analytics enabled on the project).
+
+Five events are recorded: `audit_started`, `audit_finished`, `fix_snippet_copied`, `share_link_copied` and `email_submitted`. Audit events carry only the audited hostname, score and grade. No full URLs, query strings or email addresses are ever sent. The Content-Security-Policy allows `plausible.io` only when Plausible is the chosen provider.
+
 ## Limits worth knowing
 
 - It audits one page, not the whole site.

@@ -7,13 +7,17 @@ const isDev = process.env.NODE_ENV === "development";
 // 'unsafe-inline' in script-src; everything else is locked to same-origin. 'unsafe-eval' is added only for
 // the development server (React dev tooling) and never ships to production. Styles allow inline because
 // Next injects style tags, plus the Fontshare stylesheet the layout loads; fonts come from its CDN.
+// Analytics hosts are allowed only when the matching provider is chosen at build time. The Vercel script
+// is served from this origin, so it needs no extra entry.
+const analyticsHost = process.env.NEXT_PUBLIC_ANALYTICS === "plausible" ? " https://plausible.io" : "";
+
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${analyticsHost}${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://api.fontshare.com",
   "font-src 'self' https://cdn.fontshare.com data:",
   "img-src 'self' data: blob:",
-  "connect-src 'self'",
+  `connect-src 'self'${analyticsHost}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

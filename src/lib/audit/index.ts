@@ -100,7 +100,7 @@ export function analyse(input: AnalyseInput, requestedUrl: string, startedAt = D
 const PAGE_MAX_MB = 8;
 
 /** Shared by the page fetch and the three side-file fetches of one audit: one DNS cache, one cancel signal. */
-type Net = Pick<SafeFetchOptions, "resolver" | "requestImpl" | "signal" | "lookupCache">;
+export type Net = Pick<SafeFetchOptions, "resolver" | "requestImpl" | "signal" | "lookupCache">;
 
 export interface RunAuditOptions {
   /** Aborts the audit's network work, e.g. when the client disconnects. */
@@ -110,7 +110,7 @@ export interface RunAuditOptions {
   requestImpl?: RequestImpl;
 }
 
-const looksLikeHtml = (text: string) => {
+export const looksLikeHtml = (text: string) => {
   const head = text.slice(0, 600).trimStart().toLowerCase();
   return head.startsWith("<!doctype") || head.startsWith("<html") || head.includes("<head") || head.includes("<body");
 };
@@ -123,12 +123,12 @@ function httpFailureMessage(status: number): string {
   return `The site returned status ${status} instead of a normal page.`;
 }
 
-interface RobotsFetch {
+export interface RobotsFetch {
   info: RobotsInfo;
   warning?: string;
 }
 
-async function fetchRobots(origin: string, net: Net): Promise<RobotsFetch> {
+export async function fetchRobots(origin: string, net: Net): Promise<RobotsFetch> {
   try {
     const res = await safeFetch(`${origin}/robots.txt`, { timeoutMs: 6000, maxBytes: 512 * 1024, accept: "text/plain,*/*;q=0.5", ...net });
     if (res.status === 200) {
@@ -162,7 +162,7 @@ async function fetchRobots(origin: string, net: Net): Promise<RobotsFetch> {
   }
 }
 
-async function fetchLlms(origin: string, net: Net): Promise<LlmsInfo> {
+export async function fetchLlms(origin: string, net: Net): Promise<LlmsInfo> {
   try {
     const res = await safeFetch(`${origin}/llms.txt`, { timeoutMs: 5000, maxBytes: 256 * 1024, accept: "text/plain,text/markdown,*/*;q=0.5", ...net });
     if (res.status !== 200) return { found: false, httpStatus: res.status, note: `/llms.txt returned ${res.status}` };
@@ -195,20 +195,11 @@ async function probeSitemap(origin: string, net: Net): Promise<SitemapInfo> {
   return results.find((r) => r.found) ?? { found: false };
 }
 
-export async function runAudit(inputUrl: string, opts: RunAuditOptions = {}): Promise<AuditReport> {
-  const startedAt = Date.now();
-  let url: URL;
-  try {
-    url = normaliseUrl(inputUrl);
-  } catch (err) {
-    if (err instanceof FetchError) throw new AuditFailure(err.code, err.message);
-    throw err;
-  }
-
-  const net: Net = { resolver: opts.resolver, requestImpl: opts.requestImpl, signal: opts.signal, lookupCache: createLookupCache() };
+/** Fetch one page and require a normal HTML answer. Throws AuditFailure; shared by single audits and the multi-page audit. */
+export async function fetchHtmlPage(url: URL, net: Net, limits: { maxBytes?: number; timeoutMs?: number } = {}): Promise<SafeFetchResult> {
   let page: SafeFetchResult;
   try {
-    page = await safeFetch(url, { maxBytes: PAGE_MAX_MB * 1024 * 1024, ...net });
+    page = await safeFetch(url, { maxBytes: limits.maxBytes ?? PAGE_MAX_MB * 1024 * 1024, timeoutMs: limits.timeoutMs, ...net });
   } catch (err) {
     if (err instanceof FetchError) throw new AuditFailure(err.code, err.message);
     throw new AuditFailure("fetch_failed", "We could not fetch that page.");
@@ -223,6 +214,22 @@ export async function runAudit(inputUrl: string, opts: RunAuditOptions = {}): Pr
     // Fixed wording: the content type is chosen by the target site, so it is not echoed back.
     throw new AuditFailure("not_html", "That address did not return an HTML page. Enter the address of a web page.");
   }
+
+  return page;
+}
+
+export async function runAudit(inputUrl: string, opts: RunAuditOptions = {}): Promise<AuditReport> {
+  const startedAt = Date.now();
+  let url: URL;
+  try {
+    url = normaliseUrl(inputUrl);
+  } catch (err) {
+    if (err instanceof FetchError) throw new AuditFailure(err.code, err.message);
+    throw err;
+  }
+
+  const net: Net = { resolver: opts.resolver, requestImpl: opts.requestImpl, signal: opts.signal, lookupCache: createLookupCache() };
+  const page = await fetchHtmlPage(url, net);
 
   const origin = new URL(page.finalUrl).origin;
   const [robotsR, llmsR, sitemapR] = await Promise.allSettled([fetchRobots(origin, net), fetchLlms(origin, net), probeSitemap(origin, net)]);
